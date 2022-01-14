@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "RVKwnTNj3OOFS2lIPbMQqzbPQzf1crAwTLZF8BrMtSyGVkksuOgpgvLHmVfzFDKaHCfk07HL7k9xXH50XMpnFw==",
+  "success": true,
+  "projectFilePath": "E:\\Flagsmith-dotnet-sdk\\Flagsmith-engine\\Flagsmith-engine.csproj",
+  "expectedPackageFiles": [
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\asadabbas\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

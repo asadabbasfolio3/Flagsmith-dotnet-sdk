@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Flagsmith">
+      <HintPath>../bin/Debug/netstandard2.0/flagsmith-dotnet-client.dll</HintPath>
+      <PackageReference Include="BulletTrain" Version="2.2.0" />
+      <Reference Include="BulletTrain">
+    </Reference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+  </ItemGroup>
+
+</Project>
