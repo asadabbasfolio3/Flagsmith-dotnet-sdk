@@ -9,5 +9,9 @@ namespace Flagsmith_engine.Segment.Models
         public string Operator { get; set; }
         public string Value { get; set; }
         public string Property { get; set; }
+        public bool MatchesTraitValue(string traitValue)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

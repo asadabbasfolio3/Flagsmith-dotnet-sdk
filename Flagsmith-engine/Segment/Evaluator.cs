@@ -2,12 +2,14 @@
 using Flagsmith_engine.Identity.Models;
 using Flagsmith_engine.Segment.Models;
 using Flagsmith_engine.Trait.Models;
+using Flagsmith_engine.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Flagsmith_engine.Segment { 
+namespace Flagsmith_engine.Segment
+{
     public static class Evaluator
     {
 
@@ -25,7 +27,16 @@ namespace Flagsmith_engine.Segment {
         }
         public static bool TraitsMatchSegmentCondition(List<TraitModel> identityTraits, SegmentConditionModel condition, string segemntId, string identityId)
         {
-            throw new NotImplementedException();
+            float floatValue;
+            if (condition.Operator == Constants.PercentageSplit)
+            {
+                floatValue = float.Parse(condition.Value);
+                return Hashing.GetHashedPercentageForObjectIds(new List<string>() { segemntId, identityId }) <= floatValue;
+            }
+            var trait = identityTraits.FirstOrDefault(t => t.TraitKey == condition.Property);
+            if (trait != null)
+                return condition.MatchesTraitValue(trait.TraitValue);
+            return false;
         }
     }
 }
