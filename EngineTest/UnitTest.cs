@@ -1,4 +1,6 @@
 using Flagsmith_engine.Models;
+using Flagsmith_engine.Models.Environment;
+using Flagsmith_engine.Models.Identity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
