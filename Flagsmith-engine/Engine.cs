@@ -5,16 +5,27 @@ using Flagsmith_engine.Models.Environment;
 using Flagsmith_engine.Exceptions;
 using Flagsmith_engine.Models.Identity;
 using Flagsmith_engine.Models.Identity.Trait;
-using Flagsmith_engine.Models.Segment;
 using System;
+using Flagsmith_engine.Interfaces;
+using Flagsmith_engine.Utils;
 
 namespace Flagsmith_engine
 {
-    public class Engine
+    public class Engine : IEngine
     {
+        /// <summary>
+        /// Get a list of feature states for a given environment
+        /// </summary>
+        /// <param name="environmentModel">the environment model object</param>
+        /// <returns>list of feature-state model</returns>
         public List<FeatureStateModel> GetEnvironmentFeatureStates(EnvironmentModel environmentModel) =>
             environmentModel.Project.HideDisabledFlags ? environmentModel.FeatureStates.Where(fs => fs.Enabled).ToList() : environmentModel.FeatureStates;
-
+        /// <summary>
+        /// Get a specific feature state for a given feature_name in a given environment
+        /// </summary>
+        /// <param name="environmentModel">environment model object</param>
+        /// <param name="featureName">name of a feature to get</param>
+        /// <returns>feature-state model</returns>
         public FeatureStateModel GetEnvironmentFeatureState(EnvironmentModel environmentModel, string featureName)
         {
             var featureState = environmentModel.FeatureStates.FirstOrDefault(fs => fs.Feature.Name == featureName);
