@@ -4,7 +4,9 @@ using System.Text;
 
 namespace Flagsmith_engine.Models.Feature
 {
-    class MultivariateFeatureOptionModel
+    public class MultivariateFeatureOptionModel
     {
+        public int Id { get; set; }
+        public string Value { get; set; }
     }
 }

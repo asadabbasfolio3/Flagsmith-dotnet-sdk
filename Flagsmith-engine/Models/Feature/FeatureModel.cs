@@ -4,7 +4,10 @@ using System.Text;
 
 namespace Flagsmith_engine.Models.Feature
 {
-    class FeatureModel
+    public class FeatureModel
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
     }
 }

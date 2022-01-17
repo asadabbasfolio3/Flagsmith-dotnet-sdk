@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Flagsmith_engine.Models.Feature;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Models
+namespace Flagsmith_engine.Models.Environment
 {
     public class EnvironmentModel
     {
