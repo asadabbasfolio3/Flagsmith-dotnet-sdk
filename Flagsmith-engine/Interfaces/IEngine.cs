@@ -12,6 +12,8 @@ namespace Flagsmith_engine.Interfaces
     {
         List<FeatureStateModel> GetEnvironmentFeatureStates(EnvironmentModel environmentModel);
         FeatureStateModel GetEnvironmentFeatureState(EnvironmentModel environmentModel, string featureName);
+        List<FeatureStateModel> GetIdentityFeatureStates(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits=null);
+        FeatureStateModel GetIdentityFeatureState(EnvironmentModel environmentModel, IdentityModel identity, string featureName, List<TraitModel> overrideTraits);
         Dictionary<FeatureModel, FeatureStateModel> GetIdentityFeatureStatesDict(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits);
     }
 }

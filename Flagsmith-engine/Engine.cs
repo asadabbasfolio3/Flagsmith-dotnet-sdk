@@ -34,7 +34,7 @@ namespace Flagsmith_engine
 
             throw new FeatureStateNotFoundException();
         }
-        public List<FeatureStateModel> GetIdentityFeatureStates(EnvironmentModel environmentModel, IdentityModel identity, string featureName, List<TraitModel> overrideTraits)
+        public List<FeatureStateModel> GetIdentityFeatureStates(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits)
         {
             var featureStates = GetIdentityFeatureStatesDict(environmentModel, identity, overrideTraits).Values.ToList();
 

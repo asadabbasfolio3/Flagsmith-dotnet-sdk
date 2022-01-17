@@ -7,16 +7,33 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Xunit;
+using Flagsmith_engine.Interfaces;
+using System.Linq;
 
 namespace EngineTest
 {
     public class EngineTest
     {
+        private IEngine _iengine;
+        EngineTest(IEngine iEngine)
+        {
+            _iengine = iEngine;
+        }
         [Theory]
         [MemberData(nameof(ExtractTestCases),parameters: @"\TestEngineData\Data\environment_n9fbf9h3v4fFgH3U3ngWhb.json")]
-        public void Test_Engine(EnvironmentModel environment_model,IdentityModel IdentityModel,Response response)
+        public void Test_Engine(EnvironmentModel environmentModel,IdentityModel IdentityModel,Response response)
         {
-            //TODO
+            var engineResponse = _iengine.GetIdentityFeatureStates(environmentModel, IdentityModel);
+
+            var sortedEngineflags = engineResponse.OrderBy(x => x.Feature.Name);
+            var sortedApiFlags = response.flags.OrderBy(x => x.feature.Name);
+
+            Assert.Equal(sortedEngineflags.Count(),sortedApiFlags.Count());
+
+            foreach (var featureState in sortedApiFlags)
+            {
+               //TODO
+            }
         }
         public static JObject LoadData(string path)
         {
