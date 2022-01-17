@@ -1,6 +1,6 @@
+using Flagsmith_engine.Models;
 using Flagsmith_engine.Environment.Models;
 using Flagsmith_engine.Identity.Models;
-using Flagsmith_engine.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -10,7 +10,7 @@ using Xunit;
 
 namespace EngineTest
 {
-    public class UnitTests
+    public class EngineTest
     {
         [Theory]
         [MemberData(nameof(ExtractTestCases),parameters: @"\TestEngineData\Data\environment_n9fbf9h3v4fFgH3U3ngWhb.json")]
@@ -34,7 +34,7 @@ namespace EngineTest
             foreach (var item in test_data["identities_and_responses"])
             {
                 var identity_model = item["identity"].ToObject<IdentityModel>();
-                var response = item["response"].ToObject<IdentityModel>();
+                var response = item["response"].ToObject<Response>();
                 testCases.Add(new object[] { environment_model, identity_model, response });
             }
             return testCases;

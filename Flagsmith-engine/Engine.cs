@@ -29,17 +29,42 @@ namespace Flagsmith_engine
         public FeatureStateModel GetEnvironmentFeatureState(EnvironmentModel environmentModel, string featureName)
         {
             var featureState = environmentModel.FeatureStates.FirstOrDefault(fs => fs.Feature.Name == featureName);
-            if (featureState == null)
-                throw new FeatureStateNotFoundException();
-            return featureState;
+            if (featureState != null)
+                return featureState;
+
+            throw new FeatureStateNotFoundException();
         }
         public List<FeatureStateModel> GetIdentityFeatureStates(EnvironmentModel environmentModel, IdentityModel identity, string featureName, List<TraitModel> overrideTraits)
         {
-            throw new NotImplementedException();
+            var featureStates = GetIdentityFeatureStatesDict(environmentModel, identity, overrideTraits).Values.ToList();
+
+            if (environmentModel.Project.HideDisabledFlags)
+                return featureStates.Where(fs => fs.Enabled).ToList();
+
+            return featureStates;
         }
-        public List<FeatureStateModel> GetIdentityFeatureState(EnvironmentModel environmentModel, IdentityModel identity, string featureName, List<TraitModel> overrideTraits)
+        public FeatureStateModel GetIdentityFeatureState(EnvironmentModel environmentModel, IdentityModel identity, string featureName, List<TraitModel> overrideTraits)
         {
+            var featureStates = GetIdentityFeatureStatesDict(environmentModel, identity, overrideTraits);
+            var matchingFeature = featureStates.FirstOrDefault(x => x.Key.Name == featureName);
+
+            if (!matchingFeature.Equals(default(KeyValuePair<FeatureModel, FeatureStateModel>)))
+                return matchingFeature.Value;
+
+            throw new FeatureStateNotFoundException();
+        }
+
+        public Dictionary<FeatureModel, FeatureStateModel> GetIdentityFeatureStatesDict(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits)
+        {
+            var featureStates = environmentModel.FeatureStates.ToDictionary(key => key.Feature, val => val);
             var identitySegments = Evaluator.GetIdentitySegments(environmentModel, identity, overrideTraits);
+            foreach (var matchingSegment in identitySegments)
+            {
+                foreach (var featureState in matchingSegment.FeatureStates)
+                {
+                    featureStates[featureState.Feature] = featureState;
+                }
+            }
             throw new NotImplementedException();
         }
     }
