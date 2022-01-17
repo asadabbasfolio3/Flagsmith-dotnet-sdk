@@ -8,14 +8,14 @@ namespace Flagsmith_engine.Models
    public class ProjectModel
     {
         [JsonProperty(PropertyName = "hide_disabled_flags")]
-        public bool hide_disabled_flags { get; set; }
-        //[JsonProperty(PropertyName = "segments")]
-        //public List<Segment> segments { get; set; }
+        public bool HideDisabledFlags { get; set; }
+        [JsonProperty(PropertyName = "segments")]
+        public List<Segment> Segment { get; set; }
         [JsonProperty(PropertyName = "name")]
-        public string name { get; set; }
+        public string Name { get; set; }
         [JsonProperty(PropertyName = "id")]
-        public int id { get; set; }
+        public int Id { get; set; }
         [JsonProperty(PropertyName = "organisation")]
-        public Organization organization { get; set; }
+        public Organization Organization { get; set; }
     }
 }
