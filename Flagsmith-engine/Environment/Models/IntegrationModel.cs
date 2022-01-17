@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Models
+namespace Flagsmith_engine.Environment.Models
 {
     public class IntegrationModel
     {

@@ -1,15 +1,13 @@
-﻿using Flagsmith_engine.Models;
-using Flagsmith_engine.Models.Environment;
-using Flagsmith_engine.Models.Identity;
-using Flagsmith_engine.Models.Identity.Trait;
-using Flagsmith_engine.Models.Segment;
+﻿using Flagsmith_engine.Environment.Models;
+using Flagsmith_engine.Identity.Models;
+using Flagsmith_engine.Segment.Models;
+using Flagsmith_engine.Trait.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Flagsmith_engine.Utils
-{
+namespace Flagsmith_engine.Segment { 
     public static class Evaluator
     {
 

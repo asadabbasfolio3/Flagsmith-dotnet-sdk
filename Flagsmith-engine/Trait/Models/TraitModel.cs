@@ -1,4 +1,4 @@
-﻿namespace Flagsmith_engine.Models.Identity.Trait
+﻿namespace Flagsmith_engine.Trait.Models
 {
     public class TraitModel
     {

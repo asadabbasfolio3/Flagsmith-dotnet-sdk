@@ -1,10 +1,9 @@
-﻿using Flagsmith_engine.Models.Feature;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Models.Feature
+namespace Flagsmith_engine.Feature.Models
 {
     public class FeatureStateModel
     {

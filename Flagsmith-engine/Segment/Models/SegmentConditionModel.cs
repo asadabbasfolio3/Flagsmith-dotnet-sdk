@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Models.Segment
+namespace Flagsmith_engine.Segment.Models
 {
     public class SegmentConditionModel
     {

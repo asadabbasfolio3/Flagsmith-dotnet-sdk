@@ -1,4 +1,4 @@
-﻿using Flagsmith_engine.Models.Feature;
+﻿using Flagsmith_engine.Feature.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;

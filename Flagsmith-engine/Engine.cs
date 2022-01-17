@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
-using Flagsmith_engine.Models.Feature;
-using Flagsmith_engine.Models.Environment;
 using Flagsmith_engine.Exceptions;
-using Flagsmith_engine.Models.Identity;
-using Flagsmith_engine.Models.Identity.Trait;
 using System;
 using Flagsmith_engine.Interfaces;
-using Flagsmith_engine.Utils;
+using Flagsmith_engine.Segment;
+using Flagsmith_engine.Environment.Models;
+using Flagsmith_engine.Feature.Models;
+using Flagsmith_engine.Identity.Models;
+using Flagsmith_engine.Trait.Models;
 
 namespace Flagsmith_engine
 {

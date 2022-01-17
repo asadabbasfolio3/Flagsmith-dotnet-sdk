@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Models.Feature;
-namespace Flagsmith_engine.Models.Segment
+using Flagsmith_engine.Feature.Models;
+namespace Flagsmith_engine.Segment.Models
 {
     public class SegmentModel
     {

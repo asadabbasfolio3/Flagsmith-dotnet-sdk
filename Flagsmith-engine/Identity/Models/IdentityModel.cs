@@ -1,9 +1,9 @@
-﻿using Flagsmith_engine.Models.Identity.Trait;
+﻿using Flagsmith_engine.Trait.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Models.Identity
+namespace Flagsmith_engine.Identity.Models
 {
     public class IdentityModel
     {

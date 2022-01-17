@@ -1,6 +1,5 @@
-﻿using Flagsmith_engine.Models;
-using Flagsmith_engine.Models.Environment;
-using Flagsmith_engine.Models.Feature;
+﻿using Flagsmith_engine.Environment.Models;
+using Flagsmith_engine.Feature.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;

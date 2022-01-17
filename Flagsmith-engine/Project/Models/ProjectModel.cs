@@ -2,8 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Models.Segment;
-namespace Flagsmith_engine.Models
+using Flagsmith_engine.Segment.Models;
+using Flagsmith_engine.Organization.Models;
+namespace Flagsmith_engine.Project.Models
 {
     public class ProjectModel
     {
@@ -16,6 +17,6 @@ namespace Flagsmith_engine.Models
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
         [JsonProperty(PropertyName = "organisation")]
-        public Organization Organization { get; set; }
+        public OrganizationModel Organization { get; set; }
     }
 }

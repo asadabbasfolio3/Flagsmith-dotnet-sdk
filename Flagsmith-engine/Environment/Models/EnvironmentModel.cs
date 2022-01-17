@@ -1,9 +1,10 @@
-using Flagsmith_engine.Models.Feature;
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Flagsmith_engine.Project.Models;
+using Flagsmith_engine.Feature.Models;
 
-namespace Flagsmith_engine.Models.Environment
+namespace Flagsmith_engine.Environment.Models
 {
     public class EnvironmentModel
     {
