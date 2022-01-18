@@ -3,6 +3,6 @@
     public class TraitModel
     {
         public string TraitKey { get; set; }
-        public string TraitValue { get; set;}
+        public object TraitValue { get; set;}
     }
 }

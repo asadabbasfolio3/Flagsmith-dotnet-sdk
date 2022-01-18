@@ -32,7 +32,7 @@ namespace Flagsmith_engine
             if (featureState != null)
                 return featureState;
 
-            throw new FeatureStateNotFoundException();
+            throw new FeatureStateNotFound();
         }
         public List<FeatureStateModel> GetIdentityFeatureStates(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits)
         {
@@ -51,7 +51,7 @@ namespace Flagsmith_engine
             if (!matchingFeature.Equals(default(KeyValuePair<FeatureModel, FeatureStateModel>)))
                 return matchingFeature.Value;
 
-            throw new FeatureStateNotFoundException();
+            throw new FeatureStateNotFound();
         }
 
         public Dictionary<FeatureModel, FeatureStateModel> GetIdentityFeatureStatesDict(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits)

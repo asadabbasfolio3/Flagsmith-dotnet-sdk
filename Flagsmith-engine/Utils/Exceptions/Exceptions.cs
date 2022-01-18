@@ -15,4 +15,10 @@ namespace Flagsmith_engine.Exceptions
             }
         }
     }
+    public class DuplicateFeatureState : Exception
+    {
+    }
+    public class InvalidPercentageAllocation : Exception
+    {
+    }
 }
