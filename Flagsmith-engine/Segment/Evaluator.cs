@@ -18,7 +18,7 @@ namespace Flagsmith_engine.Segment
 
         static bool EvaluateIdentityInSegment(IdentityModel identity, SegmentModel segment, List<TraitModel> overrideTraits)
         {
-            var traits = overrideTraits.Any() ? overrideTraits : identity.IdentityTraits;
+            var traits = overrideTraits?.Any() == true ? overrideTraits : identity.IdentityTraits;
             return segment.Rules.Any() && segment.Rules.All(rule => TraitsMatchSegmentRule(traits, rule, segment.Id.ToString(), identity.CompositeKey));
         }
         static bool TraitsMatchSegmentRule(List<TraitModel> identityTraits, SegmentRuleModel rule, string segemntId, string identityId)

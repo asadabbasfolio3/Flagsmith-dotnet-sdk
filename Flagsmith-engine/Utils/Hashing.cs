@@ -9,7 +9,7 @@ namespace Flagsmith_engine.Utils
         public static float GetHashedPercentageForObjectIds(List<string> objectIds, int iteration = 1)
         {
             var toHash = String.Join(",", repeatIdsList(objectIds, iteration));
-            var hashedValueAsInt = Convert.ToInt32(CreateMD5(toHash), 16);
+            var hashedValueAsInt = Convert.ToInt64(CreateMD5(toHash), 16);
             var value = ((hashedValueAsInt % 9999) / 9998) * 100;
             return value == 100 ? GetHashedPercentageForObjectIds(objectIds, ++iteration) : value;
         }

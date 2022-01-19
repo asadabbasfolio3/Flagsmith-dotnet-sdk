@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Flagsmith_engine.Segment.Models;
 using System.Linq;
+using Newtonsoft.Json;
 namespace Flagsmith_engine.Segment.Models
 {
     public class SegmentRuleModel
     {
+        [JsonProperty("type")]
         public string Type { get; set; }
+        [JsonProperty("rules")]
         public List<SegmentRuleModel> Rules { get; set; }
+        [JsonProperty("conditions")]
         public List<SegmentConditionModel> Conditions { get; set; }
 
         public bool MatchingFunction(List<bool> list)

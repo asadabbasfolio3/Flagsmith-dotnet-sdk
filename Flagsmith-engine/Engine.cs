@@ -65,7 +65,12 @@ namespace Flagsmith_engine
                     featureStates[featureState.Feature] = featureState;
                 }
             }
-            throw new NotImplementedException();
+            identity.IdentityFeatures.ForEach(x =>
+            {
+                if (featureStates.ContainsKey(x.Feature))
+                    featureStates[x.Feature] = x;
+            });
+            return featureStates;
         }
     }
 }

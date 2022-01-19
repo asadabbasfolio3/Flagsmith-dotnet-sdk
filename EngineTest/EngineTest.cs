@@ -15,24 +15,24 @@ namespace EngineTest
     public class EngineTest
     {
         private IEngine _iengine;
-        EngineTest(IEngine iEngine)
+        public EngineTest()
         {
-            _iengine = iEngine;
+            _iengine = new Flagsmith_engine.Engine();
         }
         [Theory]
-        [MemberData(nameof(ExtractTestCases),parameters: @"\TestEngineData\Data\environment_n9fbf9h3v4fFgH3U3ngWhb.json")]
-        public void Test_Engine(EnvironmentModel environmentModel,IdentityModel IdentityModel,Response response)
+        [MemberData(nameof(ExtractTestCases), parameters: @"\TestEngineData\Data\environment_n9fbf9h3v4fFgH3U3ngWhb.json")]
+        public void Test_Engine(EnvironmentModel environmentModel, IdentityModel IdentityModel, Response response)
         {
             var engineResponse = _iengine.GetIdentityFeatureStates(environmentModel, IdentityModel);
 
-            var sortedEngineflags = engineResponse.OrderBy(x => x.Feature.Name);
-            var sortedApiFlags = response.flags.OrderBy(x => x.feature.Name);
+            var sortedEngineflags = engineResponse.OrderBy(x => x.Feature.Name).ToList();
+            var sortedApiFlags = response.flags.OrderBy(x => x.feature.Name).ToList();
 
-            Assert.Equal(sortedEngineflags.Count(),sortedApiFlags.Count());
-
-            foreach (var featureState in sortedApiFlags)
+            Assert.Equal(sortedEngineflags.Count(), sortedApiFlags.Count());
+            for (int i = 0; i < sortedEngineflags.Count(); i++)
             {
-               //TODO
+                Assert.Equal(sortedEngineflags[i].GetValue().ToString(), sortedApiFlags[i].feature_state_value.ToString());
+                Assert.Equal(sortedEngineflags[i].Enabled, sortedApiFlags[i].enabled);
             }
         }
         public static JObject LoadData(string path)
