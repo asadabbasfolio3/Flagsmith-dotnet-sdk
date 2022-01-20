@@ -51,10 +51,10 @@ namespace Flagsmith_engine.Segment
         }
         static bool MatchingFunctionName(object traitValue, SegmentConditionModel condition)
         {
-            switch (condition.Value.GetType().Name)
+            switch (getObjectType(condition.Value))
             {
                 case "System.Int32":
-                    return intOperations((int)traitValue, condition);
+                    return intOperations((Int64)traitValue, condition);
                 case "System.Double":
                     return doubleOperations((double)traitValue, condition);
                 case "System.Boolean":
@@ -62,6 +62,22 @@ namespace Flagsmith_engine.Segment
                 default:
                     return stringOperations((string)traitValue, condition);
             }
+        }
+        static string getObjectType(string val)
+        {
+            int _intVal;
+            bool _booleanVal;
+            double _doubleVal;
+
+
+            if (int.TryParse(val, out _intVal) && _intVal.ToString() == val)
+                return typeof(int).FullName;
+            else if (double.TryParse(val, out _doubleVal) && _doubleVal.ToString() == val)
+                return typeof(double).FullName;
+            else if (bool.TryParse(val, out _booleanVal) && _booleanVal.ToString() == val)
+                return typeof(bool).FullName;
+            else
+                return typeof(string).FullName;
         }
         static bool stringOperations(string traitValue, SegmentConditionModel condition)
         {
@@ -74,7 +90,7 @@ namespace Flagsmith_engine.Segment
                 default: throw new ArgumentException("Invalid Operator");
             }
         }
-        static bool intOperations(int traitValue, SegmentConditionModel condition)
+        static bool intOperations(long traitValue, SegmentConditionModel condition)
         {
             var currentValue = Convert.ToInt32(condition.Value);
             switch (condition.Operator)
