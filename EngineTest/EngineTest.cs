@@ -28,7 +28,7 @@ namespace EngineTest
             var sortedEngineflags = engineResponse.OrderBy(x => x.Feature.Name).ToList();
             var sortedApiFlags = response.flags.OrderBy(x => x.feature.Name).ToList();
 
-            Assert.Equal(sortedEngineflags.Count(), sortedApiFlags.Count());
+            Assert.Equal(sortedApiFlags.Count(), sortedEngineflags.Count());
             for (int i = 0; i < sortedEngineflags.Count(); i++)
             {
                 Assert.Equal(sortedEngineflags[i].GetValue().ToString(), sortedApiFlags[i].feature_state_value.ToString());
