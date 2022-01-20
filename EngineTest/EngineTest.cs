@@ -31,8 +31,8 @@ namespace EngineTest
             Assert.Equal(sortedApiFlags.Count(), sortedEngineflags.Count());
             for (int i = 0; i < sortedEngineflags.Count(); i++)
             {
-                Assert.Equal(sortedEngineflags[i].GetValue().ToString(), sortedApiFlags[i].feature_state_value.ToString());
-                Assert.Equal(sortedEngineflags[i].Enabled, sortedApiFlags[i].enabled);
+                Assert.Equal(sortedApiFlags[i].feature_state_value?.ToString() ?? "", sortedEngineflags[i].GetValue()?.ToString() ?? "");
+                Assert.Equal(sortedApiFlags[i].enabled, sortedEngineflags[i].Enabled);
             }
         }
         public static JObject LoadData(string path)

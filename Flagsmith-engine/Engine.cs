@@ -62,14 +62,17 @@ namespace Flagsmith_engine
             {
                 foreach (var featureState in matchingSegment.FeatureStates)
                 {
-                    var item=featureStates.First(x => x.Key.Id == featureState.Feature.Id);
+                    var item = featureStates.First(x => x.Key.Id == featureState.Feature.Id);
                     featureStates[item.Key] = featureState;
                 }
             }
             identity.IdentityFeatures.ForEach(x =>
             {
                 if (featureStates.ContainsKey(x.Feature))
-                    featureStates[x.Feature] = x;
+                {
+                    var item = featureStates.First(f => f.Key.Id == x.Feature.Id);
+                    featureStates[item.Key] = x;
+                }
             });
             return featureStates;
         }
