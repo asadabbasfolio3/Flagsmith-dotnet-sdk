@@ -46,7 +46,7 @@ namespace Flagsmith_engine.Segment
                 {Constants.Regex, "EvaluateRegex"},
             };
             if (exceptionOperatorMethods.ContainsKey(condition.Operator))
-                return (bool)typeof(SegmentConditionModel).GetMethod(condition.Operator).Invoke(condition, new object[] { traitValue });
+                return (bool)typeof(SegmentConditionModel).GetMethod(exceptionOperatorMethods[condition.Operator]).Invoke(condition, new object[] { traitValue });
             return MatchingFunctionName(traitValue, condition);
         }
         static bool MatchingFunctionName(object traitValue, SegmentConditionModel condition)
