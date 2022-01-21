@@ -17,7 +17,7 @@ namespace Flagsmith_engine.Utils
         private static List<string> repeatIdsList(List<string> objectIds, int iteration)
         {
             var list = new List<string>();
-            foreach (var _ in Enumerable.Range(0, iteration + 1))
+            foreach (var _ in Enumerable.Range(0, iteration))
             {
                 list.AddRange(objectIds);
             }
@@ -33,7 +33,8 @@ namespace Flagsmith_engine.Utils
                 {
                     sb.Append(hashByte.ToString("X2"));
                 }
-                return new BigInteger(Encoding.UTF8.GetBytes(sb.ToString()));
+                //return a negative number if the first digit is between 8-F.so prepend a 0 to the string.
+                return BigInteger.Parse("0"+sb.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
             }
         }
     }
