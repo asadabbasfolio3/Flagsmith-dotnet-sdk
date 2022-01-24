@@ -13,5 +13,6 @@ namespace Flagsmith_engine.Organization.Models
         public bool StopServingFlags { get; set; }
         [JsonProperty("id")]
         public int Id { get; set; }
+        public string UniqueSlug => $"{Id}-{Name}";
     }
 }
