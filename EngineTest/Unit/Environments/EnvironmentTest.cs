@@ -6,7 +6,7 @@ using Xunit;
 using Flagsmith_engine.Environment.Models;
 using Flagsmith_engine.Feature;
 using System.Linq;
-namespace EngineTest
+namespace EngineTest.Unit.Environments
 {
     public class EnvironmentTest
     {

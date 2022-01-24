@@ -1,6 +1,6 @@
 ﻿using Flagsmith_engine.Organization.Models;
 using Xunit;
-namespace EngineTest
+namespace EngineTest.Unit.Organization
 {
     public class OrganizationTest
     {
