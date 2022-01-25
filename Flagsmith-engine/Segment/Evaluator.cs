@@ -16,10 +16,10 @@ namespace Flagsmith_engine.Segment
         public static List<SegmentModel> GetIdentitySegments(EnvironmentModel environmentModel, IdentityModel identity, List<TraitModel> overrideTraits)
             => environmentModel.Project.Segments.Where(s => EvaluateIdentityInSegment(identity, s, overrideTraits)).ToList();
 
-        static bool EvaluateIdentityInSegment(IdentityModel identity, SegmentModel segment, List<TraitModel> overrideTraits)
+        public static bool EvaluateIdentityInSegment(IdentityModel identity, SegmentModel segment, List<TraitModel> overrideTraits)
         {
             var traits = overrideTraits?.Any() == true ? overrideTraits : identity.IdentityTraits;
-            return segment.Rules.Any() && segment.Rules.All(rule => TraitsMatchSegmentRule(traits, rule, segment.Id.ToString(), identity.CompositeKey));
+            return segment.Rules?.Any() == true && segment.Rules.All(rule => TraitsMatchSegmentRule(traits, rule, segment.Id.ToString(), identity.CompositeKey));
         }
         static bool TraitsMatchSegmentRule(List<TraitModel> identityTraits, SegmentRuleModel rule, string segemntId, string identityId)
         {
@@ -39,7 +39,7 @@ namespace Flagsmith_engine.Segment
                 return MatchesTraitValue(trait.TraitValue, condition);
             return false;
         }
-        static bool MatchesTraitValue(object traitValue, SegmentConditionModel condition)
+        public static bool MatchesTraitValue(object traitValue, SegmentConditionModel condition)
         {
             var exceptionOperatorMethods = new Dictionary<string, string>(){
                 {Constants.NotContains, "EvaluateNotContains"},

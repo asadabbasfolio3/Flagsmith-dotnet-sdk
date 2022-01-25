@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flagsmith_engine.Segment
 {
-    internal static class Constants
+    public static class Constants
     {
         public const string AllRule = "ALL";
         public const string AnyRule = "ANY";
