@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 namespace Flagsmith_engine.Utils
 {
-    internal static class Hashing
+    public static class Hashing
     {
         public static float GetHashedPercentageForObjectIds(List<string> objectIds, int iteration = 1)
         {
