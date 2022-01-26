@@ -27,7 +27,7 @@ namespace Flagsmith_engine.Segment
               rule.MatchingFunction(rule.Conditions.Select(c =>
               TraitsMatchSegmentCondition(identityTraits, c, segemntId, identityId)).ToList()
               ) : true;
-            return matchesConditions && rule.Rules.All(r => TraitsMatchSegmentRule(identityTraits, r, segemntId, identityId));
+            return matchesConditions && (rule.Rules?.All(r => TraitsMatchSegmentRule(identityTraits, r, segemntId, identityId)) ?? true);
         }
         static bool TraitsMatchSegmentCondition(List<TraitModel> identityTraits, SegmentConditionModel condition, string segemntId, string identityId)
         {
@@ -51,10 +51,12 @@ namespace Flagsmith_engine.Segment
         }
         static bool MatchingFunctionName(object traitValue, SegmentConditionModel condition)
         {
-            switch (getObjectType(condition.Value))
+            switch (traitValue.GetType().FullName)
             {
                 case "System.Int32":
-                    return intOperations((Int64)traitValue, condition);
+                    return intOperations((Int32)traitValue, condition);
+                case "System.Int64":
+                    return longOperations((Int64)traitValue, condition);
                 case "System.Double":
                     return doubleOperations((double)traitValue, condition);
                 case "System.Boolean":
@@ -62,22 +64,6 @@ namespace Flagsmith_engine.Segment
                 default:
                     return stringOperations((string)traitValue, condition);
             }
-        }
-        static string getObjectType(string val)
-        {
-            int _intVal;
-            bool _booleanVal;
-            double _doubleVal;
-
-
-            if (int.TryParse(val, out _intVal) && _intVal.ToString() == val)
-                return typeof(int).FullName;
-            else if (double.TryParse(val, out _doubleVal) && _doubleVal.ToString() == val)
-                return typeof(double).FullName;
-            else if (bool.TryParse(val, out _booleanVal) && _booleanVal.ToString() == val)
-                return typeof(bool).FullName;
-            else
-                return typeof(string).FullName;
         }
         static bool stringOperations(string traitValue, SegmentConditionModel condition)
         {
@@ -90,9 +76,23 @@ namespace Flagsmith_engine.Segment
                 default: throw new ArgumentException("Invalid Operator");
             }
         }
-        static bool intOperations(long traitValue, SegmentConditionModel condition)
+        static bool intOperations(int traitValue, SegmentConditionModel condition)
         {
             var currentValue = Convert.ToInt32(condition.Value);
+            switch (condition.Operator)
+            {
+                case Constants.Equal: return traitValue == currentValue;
+                case Constants.NotEqual: return traitValue != currentValue;
+                case Constants.GreaterThan: return traitValue > currentValue;
+                case Constants.GreaterThanInclusive: return traitValue >= currentValue;
+                case Constants.LessThan: return traitValue < currentValue;
+                case Constants.LessThanInclusive: return traitValue <= currentValue;
+                default: throw new ArgumentException("Invalid Operator");
+            }
+        }
+        static bool longOperations(long traitValue, SegmentConditionModel condition)
+        {
+            var currentValue = Convert.ToInt64(condition.Value);
             switch (condition.Operator)
             {
                 case Constants.Equal: return traitValue == currentValue;
