@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using Flagsmith_engine.Utils;
 using System.Linq;
+using System.Runtime.Serialization;
+using Flagsmith_engine.Exceptions;
 
 namespace Flagsmith_engine.Feature.Models
 {
@@ -40,6 +42,13 @@ namespace Flagsmith_engine.Feature.Models
                 startPercentage = limit;
             }
             return Value;
+        }
+        [OnSerialized()]
+        private void validate_percentage_allocations(StreamingContext _)
+        {
+            var totalAllocation = MultivariateFeatureStateValues.Sum(m => m.PercentageAllocation);
+            if (totalAllocation > 100)
+                throw new InvalidPercentageAllocation("Total percentage allocation should not be more than 100");
         }
     }
 }

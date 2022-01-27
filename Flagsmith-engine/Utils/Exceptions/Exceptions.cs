@@ -20,5 +20,6 @@ namespace Flagsmith_engine.Exceptions
     }
     public class InvalidPercentageAllocation : Exception
     {
+        public InvalidPercentageAllocation(string message) : base(message) { }
     }
 }
