@@ -26,4 +26,8 @@
     <None Include="icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Flagsmith-engine\Flagsmith-engine.csproj" />
+  </ItemGroup>
+
 </Project>

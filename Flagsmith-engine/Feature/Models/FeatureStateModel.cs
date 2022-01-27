@@ -25,7 +25,7 @@ namespace Flagsmith_engine.Feature.Models
 
         public object GetMultivariateValue(int identityId)
         {
-            var percentageValue = Hashing.GetHashedPercentageForObjectIds(new List<string>
+            var percentageValue = new Hashing().GetHashedPercentageForObjectIds(new List<string>
             {
               DjangoId != 0 ? DjangoId.ToString() : FeatureStateUUID,
               identityId.ToString()

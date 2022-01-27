@@ -32,7 +32,7 @@ namespace Flagsmith_engine.Segment
         static bool TraitsMatchSegmentCondition(List<TraitModel> identityTraits, SegmentConditionModel condition, string segemntId, string identityId)
         {
             if (condition.Operator == Constants.PercentageSplit)
-                return Hashing.GetHashedPercentageForObjectIds(new List<string>() { segemntId, identityId }) <= float.Parse(condition.Value);
+                return new Hashing().GetHashedPercentageForObjectIds(new List<string>() { segemntId, identityId }) <= float.Parse(condition.Value);
 
             var trait = identityTraits.FirstOrDefault(t => t.TraitKey == condition.Property);
             if (trait != null)
