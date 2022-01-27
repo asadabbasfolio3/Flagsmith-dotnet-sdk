@@ -19,7 +19,8 @@ namespace Flagsmith_engine.Feature.Models
         public List<MultivariateFeatureStateValueModel> MultivariateFeatureStateValues { get; set; }
         [JsonProperty(PropertyName = "django_id")]
         public int DjangoId { get; set; }
-        public string FeatureStateUUID { get; set; }
+        [JsonProperty("featurestate_uuid")]
+        public string FeatureStateUUID { get; set; } = Guid.NewGuid().ToString();
         public object GetValue(int? identityId = null) =>
             identityId.HasValue && MultivariateFeatureStateValues.Count > 0 ? GetMultivariateValue(identityId.Value) : Value;
 
