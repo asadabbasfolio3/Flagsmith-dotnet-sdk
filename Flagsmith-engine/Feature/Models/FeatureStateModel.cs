@@ -44,7 +44,7 @@ namespace Flagsmith_engine.Feature.Models
             return Value;
         }
         [OnSerialized()]
-        private void validate_percentage_allocations(StreamingContext _)
+        private void ValidatePercentageAllocations(StreamingContext _)
         {
             var totalAllocation = MultivariateFeatureStateValues.Sum(m => m.PercentageAllocation);
             if (totalAllocation > 100)
