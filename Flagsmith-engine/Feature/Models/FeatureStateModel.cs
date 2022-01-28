@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using FlagsmithEngine.Utils;
 using System.Linq;
+using System.Runtime.Serialization;
+using FlagsmithEngine.Exceptions;
 
 namespace FlagsmithEngine.Feature.Models
 {
@@ -19,14 +21,10 @@ namespace FlagsmithEngine.Feature.Models
         public List<MultivariateFeatureStateValueModel> MultivariateFeatureStateValues { get; set; }
         [JsonProperty(PropertyName = "django_id")]
         public int DjangoId { get; set; }
-        public string FeatureStateUUID { get; set; }
-        public object GetValue(string identityId = null)
-        {
-            return identityId != null
-                  && MultivariateFeatureStateValues.Count > 0 ?
-                  GetMultivariateValue(identityId) : Value;
-        }
-
+        [JsonProperty("featurestate_uuid")]
+        public string FeatureStateUUID { get; set; } = Guid.NewGuid().ToString();
+        public object GetValue(string identityId = null) =>
+            identityId!=null && MultivariateFeatureStateValues.Count > 0 ? GetMultivariateValue(identityId.ToString()) : Value;
         public object GetMultivariateValue(string identityId)
         {
             var percentageValue = new Hashing().GetHashedPercentageForObjectIds(new List<string>
@@ -43,6 +41,13 @@ namespace FlagsmithEngine.Feature.Models
                 startPercentage = limit;
             }
             return Value;
+        }
+        [OnSerialized()]
+        private void ValidatePercentageAllocations(StreamingContext _)
+        {
+            var totalAllocation = MultivariateFeatureStateValues?.Sum(m => m.PercentageAllocation);
+            if (totalAllocation > 100)
+                throw new InvalidPercentageAllocation("Total percentage allocation should not be more than 100");
         }
     }
 }

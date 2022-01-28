@@ -60,14 +60,8 @@ namespace EngineTest.Unit.Identities
         {
             var fs1 = new FeatureStateModel { Feature = feature1, Enabled = false };
             var fs2 = new FeatureStateModel { Feature = feature1, Enabled = true };
-            try
-            {
-                identity.IdentityFeatures.Add(fs1);
-            }
-            catch (DuplicateFeatureState)
-            {
-                identity.IdentityFeatures.Add(fs2);
-            }
+            identity.IdentityFeatures.Add(fs1);
+            Assert.Throws<DuplicateFeatureState>(() => identity.IdentityFeatures.Add(fs2));
         }
         public void TestAppendFeatureState(IdentityModel identity, FeatureModel feature1)
         {

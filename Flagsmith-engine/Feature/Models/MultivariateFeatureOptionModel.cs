@@ -8,6 +8,6 @@ namespace FlagsmithEngine.Feature.Models
     {
         public int Id { get; set; }
         [JsonProperty("value")]
-        public string Value { get; set; }
+        public object Value { get; set; }
     }
 }

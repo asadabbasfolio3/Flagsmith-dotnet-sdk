@@ -14,6 +14,6 @@ namespace FlagsmithEngine.Feature.Models
         [JsonProperty("percentage_allocation")]
         public float PercentageAllocation { get; set; }
         [JsonProperty("mv_fs_value_uuid")]
-        public string MvFsValueUUID { get; set; }
+        public string MvFsValueUUID { get; set; } = Guid.NewGuid().ToString();
     }
 }
