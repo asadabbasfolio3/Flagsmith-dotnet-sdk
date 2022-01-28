@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flagsmith_engine.Exceptions
 {
-    class FeatureStateNotFound : Exception
+    public class FeatureStateNotFound : Exception
     {
         //Overriding the Message property
         public override string Message
