@@ -1,12 +1,12 @@
 ﻿using Xunit;
 using System.Collections.Generic;
-using Flagsmith_engine.Utils;
+using FlagsmithEngine.Utils;
 using System;
 using System.Linq;
 using System.Collections;
 using Moq;
 using System.Text;
-using Flagsmith_engine.Interfaces;
+using FlagsmithEngine.Interfaces;
 
 namespace EngineTest.Unit.Utils
 {

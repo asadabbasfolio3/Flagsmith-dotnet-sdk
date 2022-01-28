@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Feature.Models;
+using FlagsmithEngine.Feature.Models;
 using System.Linq;
-using Flagsmith_engine.Exceptions;
-namespace Flagsmith_engine.Identity.Models
+using FlagsmithEngine.Exceptions;
+namespace FlagsmithEngine.Identity.Models
 {
     public class IdentityFeaturesList : List<FeatureStateModel>
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Identity.Models;
+using FlagsmithEngine.Identity.Models;
 using Newtonsoft.Json.Linq;
 using Xunit;
 namespace EngineTest.Unit.Identities

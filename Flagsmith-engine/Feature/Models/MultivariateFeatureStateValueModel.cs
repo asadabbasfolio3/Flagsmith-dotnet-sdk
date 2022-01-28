@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace Flagsmith_engine.Feature.Models
+namespace FlagsmithEngine.Feature.Models
 {
     public class MultivariateFeatureStateValueModel
     {

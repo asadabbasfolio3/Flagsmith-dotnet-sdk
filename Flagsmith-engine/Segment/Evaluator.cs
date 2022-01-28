@@ -1,14 +1,14 @@
-﻿using Flagsmith_engine.Environment.Models;
-using Flagsmith_engine.Identity.Models;
-using Flagsmith_engine.Segment.Models;
-using Flagsmith_engine.Trait.Models;
-using Flagsmith_engine.Utils;
+﻿using FlagsmithEngine.Environment.Models;
+using FlagsmithEngine.Identity.Models;
+using FlagsmithEngine.Segment.Models;
+using FlagsmithEngine.Trait.Models;
+using FlagsmithEngine.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Flagsmith_engine.Segment
+namespace FlagsmithEngine.Segment
 {
     public static class Evaluator
     {
@@ -21,13 +21,13 @@ namespace Flagsmith_engine.Segment
             var traits = overrideTraits?.Any() == true ? overrideTraits : identity.IdentityTraits;
             return segment.Rules?.Any() == true && segment.Rules.All(rule => TraitsMatchSegmentRule(traits, rule, segment.Id.ToString(), identity.CompositeKey));
         }
-        static bool TraitsMatchSegmentRule(List<TraitModel> identityTraits, SegmentRuleModel rule, string segemntId, string identityId)
+        static bool TraitsMatchSegmentRule(List<TraitModel> identityTraits, SegmentRuleModel rule, string segmentId, string identityId)
         {
             var matchesConditions = rule.Conditions.Any() ?
               rule.MatchingFunction(rule.Conditions.Select(c =>
-              TraitsMatchSegmentCondition(identityTraits, c, segemntId, identityId)).ToList()
+              TraitsMatchSegmentCondition(identityTraits, c, segmentId, identityId)).ToList()
               ) : true;
-            return matchesConditions && (rule.Rules?.All(r => TraitsMatchSegmentRule(identityTraits, r, segemntId, identityId)) ?? true);
+            return matchesConditions && (rule.Rules?.All(r => TraitsMatchSegmentRule(identityTraits, r, segmentId, identityId)) ?? true);
         }
         static bool TraitsMatchSegmentCondition(List<TraitModel> identityTraits, SegmentConditionModel condition, string segemntId, string identityId)
         {

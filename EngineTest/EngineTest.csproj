@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Flagsmith-engine\Flagsmith-engine.csproj" />
+    <ProjectReference Include="..\Flagsmith-engine\FlagsmithEngine.csproj" />
   </ItemGroup>
 
 </Project>

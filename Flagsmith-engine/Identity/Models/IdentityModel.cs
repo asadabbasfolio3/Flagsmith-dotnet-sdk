@@ -1,11 +1,11 @@
-﻿using Flagsmith_engine.Trait.Models;
+﻿using FlagsmithEngine.Trait.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Flagsmith_engine.Feature.Models;
+using FlagsmithEngine.Feature.Models;
 
-namespace Flagsmith_engine.Identity.Models
+namespace FlagsmithEngine.Identity.Models
 {
     public class IdentityModel
     {

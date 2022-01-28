@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using Newtonsoft.Json.Linq;
-using Flagsmith_engine.Trait.Models;
+using FlagsmithEngine.Trait.Models;
 namespace EngineTest.Unit.Traits
 {
     public class TraitSchemaTest

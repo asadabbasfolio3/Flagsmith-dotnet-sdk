@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Feature
+namespace FlagsmithEngine.Feature
 {
     public class Constants
     {

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-namespace Flagsmith_engine.Organization.Models
+namespace FlagsmithEngine.Organization.Models
 {
     public class OrganizationModel
     {

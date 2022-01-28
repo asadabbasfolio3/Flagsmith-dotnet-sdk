@@ -1,10 +1,10 @@
-﻿using Flagsmith_engine.Interfaces;
+﻿using FlagsmithEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-namespace Flagsmith_engine.Utils
+namespace FlagsmithEngine.Utils
 {
     public class Hashing
     {

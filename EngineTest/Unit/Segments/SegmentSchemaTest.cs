@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using Flagsmith_engine.Segment.Models;
-using Flagsmith_engine.Segment;
-using Flagsmith_engine.Feature.Models;
-using feature = Flagsmith_engine.Feature;
+using FlagsmithEngine.Segment.Models;
+using FlagsmithEngine.Segment;
+using FlagsmithEngine.Feature.Models;
+using feature = FlagsmithEngine.Feature;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

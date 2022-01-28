@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using Flagsmith_engine.Environment.Models;
-using Flagsmith_engine.Feature;
+using FlagsmithEngine.Environment.Models;
+using FlagsmithEngine.Feature;
 using System.Linq;
 namespace EngineTest.Unit.Environments
 {
