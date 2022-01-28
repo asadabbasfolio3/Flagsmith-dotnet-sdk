@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Feature.Models;
+using FlagsmithEngine.Feature.Models;
 using Xunit;
 using Newtonsoft.Json.Linq;
-using Flagsmith_engine.Exceptions;
+using FlagsmithEngine.Exceptions;
 namespace EngineTest.Unit.Features
 {
     public class FeatureSchemaTest

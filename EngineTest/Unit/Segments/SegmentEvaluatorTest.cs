@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using Flagsmith_engine.Segment;
-using Flagsmith_engine.Segment.Models;
-using Flagsmith_engine.Trait.Models;
-using Flagsmith_engine.Identity.Models;
+using FlagsmithEngine.Segment;
+using FlagsmithEngine.Segment.Models;
+using FlagsmithEngine.Trait.Models;
+using FlagsmithEngine.Identity.Models;
 
 namespace EngineTest.Unit.Segments
 {

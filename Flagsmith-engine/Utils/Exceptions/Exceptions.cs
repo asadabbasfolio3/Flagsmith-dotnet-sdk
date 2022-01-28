@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flagsmith_engine.Exceptions
+namespace FlagsmithEngine.Exceptions
 {
     public class FeatureStateNotFound : Exception
     {

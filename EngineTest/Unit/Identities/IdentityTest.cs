@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Identity.Models;
+using FlagsmithEngine.Identity.Models;
 using Xunit;
-using Flagsmith_engine.Feature.Models;
-using Flagsmith_engine.Trait.Models;
-using Flagsmith_engine.Exceptions;
+using FlagsmithEngine.Feature.Models;
+using FlagsmithEngine.Trait.Models;
+using FlagsmithEngine.Exceptions;
 namespace EngineTest.Unit.Identities
 {
     public class IdentityTest

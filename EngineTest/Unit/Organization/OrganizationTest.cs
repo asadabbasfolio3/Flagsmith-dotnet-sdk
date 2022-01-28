@@ -1,4 +1,4 @@
-﻿using Flagsmith_engine.Organization.Models;
+﻿using FlagsmithEngine.Organization.Models;
 using Xunit;
 namespace EngineTest.Unit.Organization
 {

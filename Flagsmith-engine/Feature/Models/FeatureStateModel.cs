@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Flagsmith_engine.Utils;
+using FlagsmithEngine.Utils;
 using System.Linq;
 using System.Runtime.Serialization;
-using Flagsmith_engine.Exceptions;
+using FlagsmithEngine.Exceptions;
 
-namespace Flagsmith_engine.Feature.Models
+namespace FlagsmithEngine.Feature.Models
 {
     public class FeatureStateModel
     {
@@ -23,10 +23,9 @@ namespace Flagsmith_engine.Feature.Models
         public int DjangoId { get; set; }
         [JsonProperty("featurestate_uuid")]
         public string FeatureStateUUID { get; set; } = Guid.NewGuid().ToString();
-        public object GetValue(int? identityId = null) =>
-            identityId.HasValue && MultivariateFeatureStateValues.Count > 0 ? GetMultivariateValue(identityId.Value) : Value;
-
-        public object GetMultivariateValue(int identityId)
+        public object GetValue(string identityId = null) =>
+            identityId!=null && MultivariateFeatureStateValues.Count > 0 ? GetMultivariateValue(identityId.ToString()) : Value;
+        public object GetMultivariateValue(string identityId)
         {
             var percentageValue = new Hashing().GetHashedPercentageForObjectIds(new List<string>
             {

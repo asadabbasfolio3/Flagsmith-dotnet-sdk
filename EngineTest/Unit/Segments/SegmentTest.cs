@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
-using Flagsmith_engine.Segment.Models;
-using Flagsmith_engine.Segment;
+using FlagsmithEngine.Segment.Models;
+using FlagsmithEngine.Segment;
 using System.Linq;
 
 namespace EngineTest.Unit.Segments

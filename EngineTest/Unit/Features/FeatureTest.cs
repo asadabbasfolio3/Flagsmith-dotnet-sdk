@@ -1,4 +1,4 @@
-﻿using Flagsmith_engine.Feature.Models;
+﻿using FlagsmithEngine.Feature.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,8 +29,8 @@ namespace EngineTest.Unit.Features
             var value = "foo";
             var featureState = new FeatureStateModel { DjangoId = 1, Feature = feature1, Enabled = true };
             featureState.Value = value;
-            Assert.Equal(featureState.GetValue(), featureState.GetValue(1));
-            Assert.Equal(featureState.GetValue(1), value);
+            Assert.Equal(featureState.GetValue(), featureState.GetValue("1"));
+            Assert.Equal(featureState.GetValue("1"), value);
         }
         public void TestFeatureStateGetValueMvValues() { }
         public void TestGetValueUsesDjangoIdForMultivariateValueCalculationIfNotNull() { }

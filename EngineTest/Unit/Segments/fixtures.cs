@@ -1,5 +1,5 @@
-﻿using Flagsmith_engine.Segment;
-using Flagsmith_engine.Segment.Models;
+﻿using FlagsmithEngine.Segment;
+using FlagsmithEngine.Segment.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
