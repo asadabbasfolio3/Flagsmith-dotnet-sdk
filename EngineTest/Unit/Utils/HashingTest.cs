@@ -70,7 +70,7 @@ namespace EngineTest.Unit.Utils
             var hashStringToReturn0 = "270f";
             var objectIDs = new List<string>() { "12", "93" };
             var HasingMock = new Mock<Hashing>();
-
+            HasingMock.CallBase = true;
             var mockSetup = HasingMock.SetupSequence(p => p.HashBytesToString(It.IsAny<byte[]>()))
                 .Returns(hashStringToReturn1)
                 .Returns(hashStringToReturn0);
@@ -80,7 +80,7 @@ namespace EngineTest.Unit.Utils
 
             HasingMock.Verify(s => s.ComputeHash(It.IsAny<string>()), Times.Exactly(2));
 
-            var expressionBytes1 = String.Join(",", HasingMock.Object.repeatIdsList(objectIDs,1));
+            var expressionBytes1 = String.Join(",", HasingMock.Object.repeatIdsList(objectIDs, 1));
             var expressionBytes2 = String.Join(",", HasingMock.Object.repeatIdsList(objectIDs, 2));
 
             HasingMock.Verify(s => s.ComputeHash(expressionBytes1), Times.Exactly(1));
