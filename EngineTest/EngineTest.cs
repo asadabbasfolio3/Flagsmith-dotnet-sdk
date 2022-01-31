@@ -14,7 +14,7 @@ namespace EngineTest
 {
     public class EngineTest
     {
-        private IEngine _iengine;
+        private readonly IEngine _iengine;
         public EngineTest()
         {
             _iengine = new FlagsmithEngine.Engine();

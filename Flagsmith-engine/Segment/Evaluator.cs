@@ -34,7 +34,7 @@ namespace FlagsmithEngine.Segment
             if (condition.Operator == Constants.PercentageSplit)
                 return new Hashing().GetHashedPercentageForObjectIds(new List<string>() { segemntId, identityId }) <= float.Parse(condition.Value);
 
-            var trait = identityTraits.FirstOrDefault(t => t.TraitKey == condition.Property);
+            var trait = identityTraits?.FirstOrDefault(t => t.TraitKey == condition.Property);
             if (trait != null)
                 return MatchesTraitValue(trait.TraitValue, condition);
             return false;
