@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text;
 using Newtonsoft.Json;
+using FlagsmithEngine.Environment.Models;
 
 namespace Flagsmith
 {
@@ -14,6 +15,8 @@ namespace Flagsmith
 
         private readonly FlagsmithConfiguration configuration;
         private static HttpClient httpClient;
+        private EnvironmentModel _Environment;
+        private PollingManager _PollingManage;
 
         public FlagsmithClient(FlagsmithConfiguration flagsmithConfiguration)
         {
@@ -35,6 +38,10 @@ namespace Flagsmith
                 sp.ConnectionLeaseTimeout = 60 * 1000 * 5;
                 httpClient = new HttpClient();
                 instance = this;
+                _PollingManage = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
+                if (configuration.EnableClientSideEvaluation)
+                    _ = _PollingManage.StartPoll();
+
             }
             else
             {
@@ -289,7 +296,7 @@ namespace Flagsmith
         {
             try
             {
-                string url = GetIdentitiesUrl(identity); 
+                string url = GetIdentitiesUrl(identity);
                 string json = await GetJSON(HttpMethod.Get, url);
 
                 return JsonConvert.DeserializeObject<Identity>(json);
@@ -337,5 +344,11 @@ namespace Flagsmith
 
             return configuration.ApiUrl.AppendToUrl(trailingSlash: false, "identities", $"?identifier={identity}");
         }
+        private async Task GetAndUpdateEnvironmentFromApi()
+        {
+            var json = await GetJSON(HttpMethod.Get, "");
+            _Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
+        }
+        ~FlagsmithClient() => _PollingManage.StopPoll();
     }
 }
