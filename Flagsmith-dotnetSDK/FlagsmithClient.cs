@@ -16,7 +16,7 @@ namespace Flagsmith
         private readonly FlagsmithConfiguration configuration;
         private static HttpClient httpClient;
         private EnvironmentModel _Environment;
-        private PollingManager _PollingManage;
+        private PollingManager _PollingManager;
 
         public FlagsmithClient(FlagsmithConfiguration flagsmithConfiguration)
         {
@@ -38,9 +38,9 @@ namespace Flagsmith
                 sp.ConnectionLeaseTimeout = 60 * 1000 * 5;
                 httpClient = new HttpClient();
                 instance = this;
-                _PollingManage = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
+                _PollingManager = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
                 if (configuration.EnableClientSideEvaluation)
-                    _ = _PollingManage.StartPoll();
+                    _ = _PollingManager.StartPoll();
 
             }
             else
@@ -349,6 +349,6 @@ namespace Flagsmith
             var json = await GetJSON(HttpMethod.Get, "");
             _Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
         }
-        ~FlagsmithClient() => _PollingManage.StopPoll();
+        ~FlagsmithClient() => _PollingManager.StopPoll();
     }
 }
