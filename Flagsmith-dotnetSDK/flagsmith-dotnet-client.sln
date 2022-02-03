@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "flagsmith-dotnet-client", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FlagesmithEngine", "FlagesmithEngine", "{F4674A10-0265-46DB-A2A4-24B8AD12C467}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flagsmith-engine", "..\Flagsmith-engine\Flagsmith-engine.csproj", "{5C9D6366-64CB-47BE-A76A-5D0F2BAAD32F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlagsmithEngine", "..\Flagsmith-engine\FlagsmithEngine.csproj", "{5C9D6366-64CB-47BE-A76A-5D0F2BAAD32F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTest", "..\EngineTest\EngineTest.csproj", "{30107E8A-CDCA-4854-86E4-736939A2B864}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineTest", "..\EngineTest\EngineTest.csproj", "{30107E8A-CDCA-4854-86E4-736939A2B864}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
