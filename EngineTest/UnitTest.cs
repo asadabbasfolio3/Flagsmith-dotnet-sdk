@@ -11,7 +11,7 @@ namespace EngineTest
     public class UnitTests
     {
         [Theory]
-        [MemberData(nameof(ExtractTestCases),parameters: @"\TestEngineData\Data\environment_n9fbf9h3v4fFgH3U3ngWhb.json")]
+        [MemberData(nameof(ExtractTestCases),parameters: @"/TestEngineData/Data/environment_n9fbf9h3v4fFgH3U3ngWhb.json")]
         public void Test_Engine(EnvironmentModel environment_model,IdentityModel IdentityModel,Response response)
         {
             //TODO
