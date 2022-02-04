@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Flagsmith.Test", "Flagsmith.Test", "{F4674A10-0265-46DB-A2A4-24B8AD12C467}"
 EndProject
@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flagsmith.Engine", "Flagsmi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flagsmith.Engine.Test", "EngineTest\Flagsmith.Engine.Test.csproj", "{2884A318-D9FF-4E05-8A65-A659CFF79A30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flagsmith.DotnetClent.Test", "Flagsmith.DotnetClent.Test\Flagsmith.DotnetClent.Test.csproj", "{89CC67B8-733B-4EE6-9FDA-CF67DA6BF0F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flagsmith.DotnetClient.Test", "Flagsmith.DotnetClent.Test\Flagsmith.DotnetClient.Test.csproj", "{89CC67B8-733B-4EE6-9FDA-CF67DA6BF0F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

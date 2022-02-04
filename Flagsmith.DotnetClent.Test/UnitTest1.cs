@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace Flagsmith.DotnetClent.Test
+namespace Flagsmith.DotnetClient.Test
 {
     public class UnitTest1
     {
