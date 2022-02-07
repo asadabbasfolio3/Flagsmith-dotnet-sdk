@@ -1,4 +1,8 @@
 using Newtonsoft.Json;
+using FlagsmithEngine.Feature.Models;
+using FlagsmithEngine.Identity.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Flagsmith
 {
@@ -6,13 +10,15 @@ namespace Flagsmith
     public class Flag
     {
         [JsonProperty]
-        private Feature feature = null;
+        protected int featureId;
+        [JsonProperty]
+        protected Feature feature = null;
 
         [JsonProperty]
-        private bool enabled = false;
+        protected bool enabled = false;
 
         [JsonProperty("feature_state_value")]
-        private string value = null;
+        protected string value = null;
 
         public override string ToString()
         {
@@ -29,9 +35,12 @@ namespace Flagsmith
             return enabled;
         }
 
-        public string GetValue()
+        public virtual string GetValue()
         {
             return value;
         }
+
+
+
     }
 }
