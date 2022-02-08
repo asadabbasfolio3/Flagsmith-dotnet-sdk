@@ -357,9 +357,9 @@ namespace Flagsmith
 
             return configuration.ApiUrl.AppendToUrl(trailingSlash: false, "identities", $"?identifier={identity}");
         }
-        private async Task GetAndUpdateEnvironmentFromApi()
+        public async virtual Task GetAndUpdateEnvironmentFromApi()
         {
-            var json = await GetJSON(HttpMethod.Get, "");
+            var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
             _Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
         }
         private List<Flag> GetFeatureFlagsFromDocuments()
