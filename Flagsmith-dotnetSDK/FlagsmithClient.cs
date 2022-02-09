@@ -20,7 +20,7 @@ namespace Flagsmith
 
         private readonly FlagsmithConfiguration configuration;
         private static HttpClient httpClient;
-        private EnvironmentModel _Environment;
+        protected EnvironmentModel Environment { get; set; }
         private readonly PollingManager _PollingManager;
         private readonly IEngine _Engine;
         private readonly AnalyticsProcessor _AnalyticsProcessor;
@@ -63,7 +63,7 @@ namespace Flagsmith
         /// </summary>
         public async Task<List<Flag>> GetFeatureFlags()
         {
-            if (_Environment != null)
+            if (Environment != null)
                 return GetFeatureFlagsFromDocuments();
             string url = configuration.ApiUrl.AppendPath("flags");
             try
@@ -81,7 +81,7 @@ namespace Flagsmith
         }
         public async Task<List<Flag>> GetFeatureFlags(string identity, List<TraitModel> traits = null)
         {
-            if (_Environment != null)
+            if (Environment != null)
                 return GetIdentityFlagsFromDocuments(identity, traits);
             try
             {
@@ -357,22 +357,23 @@ namespace Flagsmith
 
             return configuration.ApiUrl.AppendToUrl(trailingSlash: false, "identities", $"?identifier={identity}");
         }
-        public async virtual Task GetAndUpdateEnvironmentFromApi()
+        protected async virtual Task GetAndUpdateEnvironmentFromApi()
         {
             var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
-            _Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
+            Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
         }
         private List<Flag> GetFeatureFlagsFromDocuments()
         {
-            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(_Environment));
+            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
             return new List<Flag>(analyticFlag);
         }
         private List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
         {
             var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits };
-            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(_Environment, identity));
+            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(Environment, identity));
             return new List<Flag>(analyticFlag);
         }
         ~FlagsmithClient() => _PollingManager.StopPoll();
     }
+   
 }

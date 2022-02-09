@@ -12,23 +12,19 @@ namespace Flagsmith.DotnetClient.Test
         [Fact]
         public void TestPollingManagerCallsUpdateEnvironmentOnStart()
         {
-            FlagsmithClient.instance = null;
-            var x = new Mock<FlagsmithClient>(Fixtures.FlagsmithConfiguration());
-            x.Setup(x => x.GetAndUpdateEnvironmentFromApi()).Returns(Task.CompletedTask);
-            var temp = x.Object;
-            x.Verify(x => x.GetAndUpdateEnvironmentFromApi(), Times.Once);
+            FlagsmithClientTest.instance = null;
+            var x = new FlagsmithClientTest(Fixtures.FlagsmithConfiguration());
+            Assert.Equal(1, x["GetAndUpdateEnvironmentFromApi"]);
         }
         [Fact]
         public async Task TestPollingManagerCallsUpdateEnvironmentOnEachRefresh()
         {
-            FlagsmithClient.instance = null;
+            FlagsmithClientTest.instance = null;
             var config = Fixtures.FlagsmithConfiguration();
             config.EnvironmentRefreshIntervalSeconds = 1;
-            var x = new Mock<FlagsmithClient>(config);
-            x.Setup(x => x.GetAndUpdateEnvironmentFromApi()).Returns(Task.CompletedTask);
-            var temp = x.Object;
+            var x = new FlagsmithClientTest(config);
             await Task.Delay(2500);
-            x.Verify(x => x.GetAndUpdateEnvironmentFromApi(), Times.Exactly(3));
+            Assert.Equal(3, x["GetAndUpdateEnvironmentFromApi"]);
         }
     }
 }
