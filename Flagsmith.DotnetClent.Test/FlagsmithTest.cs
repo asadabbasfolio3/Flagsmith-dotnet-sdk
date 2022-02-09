@@ -1,6 +1,10 @@
-﻿using System;
+﻿using FlagsmithEngine.Environment.Models;
+using Moq;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 namespace Flagsmith.DotnetClient.Test
@@ -13,17 +17,41 @@ namespace Flagsmith.DotnetClient.Test
 
         }
         [Fact]
-        public void TestGetEnvironmentFlagsCallsApiWhenNoLocalEnvironment()
+        public async Task TestUpdateEnvironmentSetsEnvironment()
+        {
+            FlagsmithClientTest.instance = null;
+            var config = Fixtures.FlagsmithConfiguration();
+            config.EnableClientSideEvaluation = false;
+            var flagsmithClientTest = new FlagsmithClientTest(config);
+            Assert.True(flagsmithClientTest.IsEnvironmentEmpty());
+            await flagsmithClientTest.TriggerEnvironmentUpdate();
+            Assert.False(flagsmithClientTest.IsEnvironmentEmpty());
+            Assert.True(flagsmithClientTest.IsEnvironmentEqual(Fixtures.Environment));
+        }
+        [Fact]
+        public async Task TestGetEnvironmentFlagsCallsApiWhenNoLocalEnvironment()
+        {
+            FlagsmithClientTest.instance = null;
+            var config = Fixtures.FlagsmithConfiguration();
+            config.EnableClientSideEvaluation = false;
+            var flagsmithClientTest = new FlagsmithClientTest(config);
+            var flags = await flagsmithClientTest.GetFeatureFlags();
+            Assert.Equal(1, flagsmithClientTest["GetFeatureFlagsFromApi"]);
+            Assert.True(flags[0].IsEnabled());
+            Assert.Equal("some-value", flags[0].GetValue());
+            Assert.Equal("some_feature", flags[0].GetFeature().GetName());
+        }
+        [Fact]
+        public async Task TestGetEnvironmentFlagsUsesLocalEnvironmentWhenAvailable()
         {
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(Fixtures.FlagsmithConfiguration());
-            Assert.True(flagsmithClientTest.IsEnvironmentEmpty());
-
-        }
-        [Fact]
-        public void TestGetEnvironmentFlagsUsesLocalEnvironmentWhenAvailable()
-        {
-
+            var flags = await flagsmithClientTest.GetFeatureFlags();
+            Assert.Equal(0, flagsmithClientTest["GetFeatureFlagsFromApi"]);
+            var fs = Fixtures.Environment.FeatureStates[0];
+            Assert.Equal(fs.Enabled, flags[0].IsEnabled());
+            Assert.Equal(fs.GetValue(), flags[0].GetValue());
+            Assert.Equal(fs.Feature.Name, flags[0].GetFeature().GetName());
         }
         [Fact]
         public void TestGetIdentityFlagsCallsApiWhenNoLocalEnvironmentNoTraits()
@@ -71,31 +99,6 @@ namespace Flagsmith.DotnetClient.Test
 
         }
     }
-    class FlagsmithClientTest : FlagsmithClient
-    {
-        Dictionary<string, int> totalFucntionCalls;
-        public FlagsmithClientTest(FlagsmithConfiguration flagsmithConfiguration) : base(flagsmithConfiguration)
-        {
-            _initDict();
-        }
-        public bool IsEnvironmentEmpty()
-        {
-            return Environment == null;
-        }
-        protected async override Task GetAndUpdateEnvironmentFromApi()
-        {
-            await Task.Delay(0);
-            Environment = Fixtures.Environment;
-            _initDict();
-            totalFucntionCalls[nameof(GetAndUpdateEnvironmentFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetAndUpdateEnvironmentFromApi), out int i) ? i + 1 : 1;
-        }
-        public int this[string functionName] => totalFucntionCalls[functionName];
-        private void _initDict()
-        {
-            if (totalFucntionCalls == null)
-                totalFucntionCalls = new Dictionary<string, int>();
-        }
 
-    }
 }
 

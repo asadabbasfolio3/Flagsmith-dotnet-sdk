@@ -787,6 +787,26 @@ namespace Flagsmith.DotnetClient.Test
  }
 }");
         public static EnvironmentModel Environment { get; } = JsonObject.ToObject<EnvironmentModel>();
+        public static string ApiFlagResponse => @"[
+    {
+        'id': 1,
+        'feature': {
+            'id': 1,
+            'name': 'some_feature',
+            'created_date': '2019-08-27T14:53:45.698555Z',
+            'initial_value': null,
+            'description': null,
+            'default_enabled': false,
+            'type': 'STANDARD',
+            'project': 1
+        },
+        'feature_state_value': 'some-value',
+        'enabled': true,
+        'environment': 1,
+        'identity': null,
+        'feature_segment': null
+    }
+]";
 
     }
 }
