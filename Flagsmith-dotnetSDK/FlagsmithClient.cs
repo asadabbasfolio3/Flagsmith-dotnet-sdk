@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 using System.Text;
 using Newtonsoft.Json;
 using FlagsmithEngine.Environment.Models;
+using FlagsmithEngine;
+using FlagsmithEngine.Interfaces;
+using System.Linq;
+using FlagsmithEngine.Identity.Models;
+using FlagsmithEngine.Trait.Models;
 
 namespace Flagsmith
 {
@@ -15,8 +20,10 @@ namespace Flagsmith
 
         private readonly FlagsmithConfiguration configuration;
         private static HttpClient httpClient;
-        private EnvironmentModel _Environment;
-        private PollingManager _PollingManager;
+        protected EnvironmentModel Environment { get; set; }
+        private readonly PollingManager _PollingManager;
+        private readonly IEngine _Engine;
+        private readonly AnalyticsProcessor _AnalyticsProcessor;
 
         public FlagsmithClient(FlagsmithConfiguration flagsmithConfiguration)
         {
@@ -39,6 +46,8 @@ namespace Flagsmith
                 httpClient = new HttpClient();
                 instance = this;
                 _PollingManager = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
+                _Engine = new Engine();
+                _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl);
                 if (configuration.EnableClientSideEvaluation)
                     _ = _PollingManager.StartPoll();
 
@@ -52,30 +61,34 @@ namespace Flagsmith
         /// <summary>
         /// Get all feature flags (flags and remote config) optionally for a specific identity.
         /// </summary>
-        public async Task<List<Flag>> GetFeatureFlags(string identity = null)
+        public async Task<List<Flag>> GetFeatureFlags()
         {
-            string url;
-            if (identity == null)
-            {
-                url = configuration.ApiUrl.AppendPath("flags");
-            }
-            else
-            {
-                url = GetIdentitiesUrl(identity);
-            }
-
+            if (Environment != null)
+                return GetFeatureFlagsFromDocuments();
+            string url = configuration.ApiUrl.AppendPath("flags");
             try
             {
                 string json = await GetJSON(HttpMethod.Get, url);
-
-                if (identity == null)
-                {
-                    return JsonConvert.DeserializeObject<List<Flag>>(json);
-                }
-                else
-                {
-                    return JsonConvert.DeserializeObject<Identity>(json)?.flags;
-                }
+                var flags = JsonConvert.DeserializeObject<List<Flag>>(json);
+                return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
+            }
+            catch (JsonException e)
+            {
+                Console.WriteLine("\nJSON Exception Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+                return null;
+            }
+        }
+        public async Task<List<Flag>> GetFeatureFlags(string identity, List<TraitModel> traits = null)
+        {
+            if (Environment != null)
+                return GetIdentityFlagsFromDocuments(identity, traits);
+            try
+            {
+                string url = GetIdentitiesUrl(identity);
+                string json = await GetJSON(HttpMethod.Get, url);
+                var flags = JsonConvert.DeserializeObject<Identity>(json)?.flags;
+                return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
             }
             catch (JsonException e)
             {
@@ -344,11 +357,23 @@ namespace Flagsmith
 
             return configuration.ApiUrl.AppendToUrl(trailingSlash: false, "identities", $"?identifier={identity}");
         }
-        private async Task GetAndUpdateEnvironmentFromApi()
+        protected async virtual Task GetAndUpdateEnvironmentFromApi()
         {
-            var json = await GetJSON(HttpMethod.Get, "");
-            _Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
+            var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
+            Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
+        }
+        private List<Flag> GetFeatureFlagsFromDocuments()
+        {
+            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
+            return new List<Flag>(analyticFlag);
+        }
+        private List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
+        {
+            var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits };
+            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(Environment, identity));
+            return new List<Flag>(analyticFlag);
         }
         ~FlagsmithClient() => _PollingManager.StopPoll();
     }
+   
 }
