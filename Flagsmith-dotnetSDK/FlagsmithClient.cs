@@ -19,7 +19,7 @@ namespace Flagsmith
         public static FlagsmithClient instance;
 
         private readonly FlagsmithConfiguration configuration;
-        private static HttpClient httpClient;
+        static HttpClient httpClient;
         protected EnvironmentModel Environment { get; set; }
         private readonly PollingManager _PollingManager;
         private readonly IEngine _Engine;
@@ -62,41 +62,10 @@ namespace Flagsmith
         /// Get all feature flags (flags and remote config) optionally for a specific identity.
         /// </summary>
         public async Task<List<Flag>> GetFeatureFlags()
-        {
-            if (Environment != null)
-                return GetFeatureFlagsFromDocuments();
-            string url = configuration.ApiUrl.AppendPath("flags");
-            try
-            {
-                string json = await GetJSON(HttpMethod.Get, url);
-                var flags = JsonConvert.DeserializeObject<List<Flag>>(json);
-                return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
-            }
-            catch (JsonException e)
-            {
-                Console.WriteLine("\nJSON Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-        }
+            => Environment != null ? GetFeatureFlagsFromDocuments() : await GetFeatureFlagsFromApi();
+
         public async Task<List<Flag>> GetFeatureFlags(string identity, List<TraitModel> traits = null)
-        {
-            if (Environment != null)
-                return GetIdentityFlagsFromDocuments(identity, traits);
-            try
-            {
-                string url = GetIdentitiesUrl(identity);
-                string json = await GetJSON(HttpMethod.Get, url);
-                var flags = JsonConvert.DeserializeObject<Identity>(json)?.flags;
-                return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
-            }
-            catch (JsonException e)
-            {
-                Console.WriteLine("\nJSON Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-        }
+             => Environment != null ? GetIdentityFlagsFromDocuments(identity, traits) : await GetIdentityFlagsFromApi(identity);
 
         /// <summary>
         /// Check feature exists and is enabled optionally for a specific identity
@@ -104,7 +73,7 @@ namespace Flagsmith
         /// <returns>Null if Flagsmith is unaccessible</returns>
         public async Task<bool?> HasFeatureFlag(string featureId, string identity = null)
         {
-            List<Flag> flags = await GetFeatureFlags(identity);
+            List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
             if (flags == null)
             {
                 return null;
@@ -126,7 +95,7 @@ namespace Flagsmith
         /// </summary>
         public async Task<string> GetFeatureValue(string featureId, string identity = null)
         {
-            List<Flag> flags = await GetFeatureFlags(identity);
+            List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
             if (flags == null)
             {
                 return null;
@@ -362,6 +331,38 @@ namespace Flagsmith
             var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
             Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
         }
+        protected async virtual Task<List<Flag>> GetFeatureFlagsFromApi()
+        {
+            string url = configuration.ApiUrl.AppendPath("flags");
+            try
+            {
+                string json = await GetJSON(HttpMethod.Get, url);
+                var flags = JsonConvert.DeserializeObject<List<Flag>>(json);
+                return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
+            }
+            catch (JsonException e)
+            {
+                Console.WriteLine("\nJSON Exception Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+                return null;
+            }
+        }
+        private async Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
+        {
+            try
+            {
+                string url = GetIdentitiesUrl(identity);
+                string json = await GetJSON(HttpMethod.Get, url);
+                var flags = JsonConvert.DeserializeObject<Identity>(json)?.flags;
+                return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
+            }
+            catch (JsonException e)
+            {
+                Console.WriteLine("\nJSON Exception Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+                return null;
+            }
+        }
         private List<Flag> GetFeatureFlagsFromDocuments()
         {
             var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
@@ -375,5 +376,5 @@ namespace Flagsmith
         }
         ~FlagsmithClient() => _PollingManager.StopPoll();
     }
-   
+
 }
