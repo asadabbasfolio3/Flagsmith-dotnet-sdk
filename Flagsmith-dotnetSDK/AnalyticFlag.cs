@@ -20,7 +20,7 @@ namespace Flagsmith
            {
                feature = new Feature(featureStateModel.Feature.Id, featureStateModel.Feature.Name),
                enabled = featureStateModel.Enabled,
-               value = featureStateModel.GetValue(identityId).ToString(),
+               value = featureStateModel.GetValue(identityId)?.ToString(),
            };
 
         public static List<AnalyticFlag> FromFeatureStateModel(AnalyticsProcessor analyticsProcessor, List<FeatureStateModel> featureStateModels, string identityId = null)
