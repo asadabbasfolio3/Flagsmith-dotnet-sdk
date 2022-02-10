@@ -16,7 +16,7 @@ namespace Flagsmith
         readonly string _EnvironmentKey;
         readonly int _TimeOut;
         DateTime _LastFlushed;
-        Dictionary<int, int> _AnalyticsData;
+        protected Dictionary<int, int> _AnalyticsData;
         HttpClient _HttpClient;
 
         public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, int timeOut = 3)
@@ -32,7 +32,7 @@ namespace Flagsmith
         /// Post the features on the provided endpoint and clear the cached data.
         /// </summary>
         /// <returns></returns>
-        public async Task Flush()
+        public virtual async Task Flush()
         {
             if (_AnalyticsData?.Any() == false)
                 return;
@@ -61,17 +61,5 @@ namespace Flagsmith
             if ((DateTime.Now - _LastFlushed).Seconds > AnalyticsTimer)
                 await Flush();
         }
-        /// <summary>
-        /// Returns tracked feature counts that are not posted on the server yet.
-        /// </summary>
-        /// <param name="featureId"></param>
-        /// <returns></returns>
-
-        public int this[int featureId] => _AnalyticsData[featureId];
-        public bool HasTrackingItemsInCache() => _AnalyticsData.Any();
-        public override string ToString() => JsonConvert.SerializeObject(_AnalyticsData);
-
-
-
     }
 }

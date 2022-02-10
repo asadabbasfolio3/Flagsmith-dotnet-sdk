@@ -11,8 +11,7 @@ namespace Flagsmith.DotnetClient.Test
     {
         public static string ApiKey => "text_key";
         public static string ApiUrl => "http://test_url";
-        public static AnalyticsProcessor AnalyticsProcessor { get; } = new AnalyticsProcessor(new HttpClient(), ApiKey, ApiUrl);
-        public static AnalyticsProcessor GetAnalyticalProcessor(HttpClient httpClient) => new AnalyticsProcessor(httpClient, ApiKey, ApiUrl);
+        public static AnalyticsProcessorTest GetAnalyticalProcessorTest() => new AnalyticsProcessorTest(new HttpClient(), ApiKey, ApiUrl);
         public static FlagsmithConfiguration FlagsmithConfiguration() => new FlagsmithConfiguration { EnableClientSideEvaluation = true, EnvironmentKey = ApiKey };
         public static JObject JsonObject = JObject.Parse(@"{
  'api_key': '8KzETdDeMY7xkqkSkY3Gsg',
@@ -807,6 +806,35 @@ namespace Flagsmith.DotnetClient.Test
         'feature_segment': null
     }
 ]";
+        public static string ApiIdentityResponse => @"{
+    'traits': [
+        {
+            'id': 1,
+            'trait_key': 'some_trait',
+            'trait_value': 'some_value'
+        }
+    ],
+    'flags': [
+        {
+            'id': 1,
+            'feature': {
+                'id': 1,
+                'name': 'some_feature',
+                'created_date': '2019-08-27T14:53:45.698555Z',
+                'initial_value': null,
+                'description': null,
+                'default_enabled': false,
+                'type': 'STANDARD',
+                'project': 1
+            },
+            'feature_state_value': 'some-value',
+            'enabled': true,
+            'environment': 1,
+            'identity': null,
+            'feature_segment': null
+        }
+    ]
+}";
 
     }
 }
