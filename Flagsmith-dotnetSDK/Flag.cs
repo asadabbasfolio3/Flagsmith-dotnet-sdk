@@ -9,16 +9,23 @@ namespace Flagsmith
     [JsonObject(MemberSerialization.OptIn)]
     public class Flag
     {
-        [JsonProperty]
-        protected int featureId;
-        [JsonProperty]
-        protected Feature feature = null;
+        public Flag() { }
+        public Flag(Feature feature, bool enabled, string value)
+        {
+            this.Feature = feature;
+            this.Enabled = enabled;
+            this.Value = value;
+        }
+        [JsonProperty("featureId")]
+        protected int FeatureId;
+        [JsonProperty("feature")]
+        protected Feature Feature = null;
 
-        [JsonProperty]
-        protected bool enabled = false;
+        [JsonProperty("enabled")]
+        protected bool Enabled = false;
 
         [JsonProperty("feature_state_value")]
-        protected string value = null;
+        protected string Value = null;
 
         public override string ToString()
         {
@@ -27,17 +34,17 @@ namespace Flagsmith
 
         public Feature GetFeature()
         {
-            return feature;
+            return Feature;
         }
 
         public bool IsEnabled()
         {
-            return enabled;
+            return Enabled;
         }
 
         public virtual string GetValue()
         {
-            return value;
+            return Value;
         }
 
 

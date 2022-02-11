@@ -5,19 +5,20 @@ namespace Flagsmith
     [JsonObject(MemberSerialization.OptIn)]
     public class Feature
     {
+        public Feature() { }
         public Feature(int id, string name)
         {
-            this.id = id;
-            this.name = name;
+            this.Id = id;
+            this.Name = name;
         }
-        [JsonProperty]
-        private int id;
-        [JsonProperty]
-        private string name = null;
+        [JsonProperty("id")]
+        private int Id;
+        [JsonProperty("name")]
+        private string Name = null;
 
         public string GetName()
         {
-            return name;
+            return Name;
         }
 
         public override string ToString()

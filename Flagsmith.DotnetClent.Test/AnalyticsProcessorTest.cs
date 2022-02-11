@@ -21,7 +21,7 @@ namespace Flagsmith.DotnetClient.Test
         public override async Task Flush()
         {
             IsFlushEarlyReturn = false;
-            if (!_AnalyticsData.Any())
+            if (!AnalyticsData.Any())
             {
                 IsFlushEarlyReturn = true;
                 _LogFunctionCall(nameof(Flush));
@@ -29,7 +29,7 @@ namespace Flagsmith.DotnetClient.Test
             }
 
             await Task.Delay(0);
-            this._AnalyticsData.Clear();
+            this.AnalyticsData.Clear();
             _LogFunctionCall(nameof(Flush));
         }
         /// <summary>
@@ -37,10 +37,10 @@ namespace Flagsmith.DotnetClient.Test
         /// </summary>
         /// <param name="featureId"></param>
         /// <returns></returns>
-        public int this[int featureId] => _AnalyticsData[featureId];
+        public int this[int featureId] => AnalyticsData[featureId];
         public int this[string functionName] => _totalFucntionCalls.GetValueOrDefault(functionName);
-        public bool HasTrackingItemsInCache() => _AnalyticsData.Any();
-        public override string ToString() => JsonConvert.SerializeObject(_AnalyticsData);
+        public bool HasTrackingItemsInCache() => AnalyticsData.Any();
+        public override string ToString() => JsonConvert.SerializeObject(AnalyticsData);
         private void _LogFunctionCall(string functionName)
         {
             _totalFucntionCalls[functionName] = _totalFucntionCalls.TryGetValue(functionName, out int i) ? i + 1 : 1;

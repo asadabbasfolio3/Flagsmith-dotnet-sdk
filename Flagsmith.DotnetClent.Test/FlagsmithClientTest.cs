@@ -7,6 +7,7 @@ using Moq;
 using System.Net.Http;
 using System.Threading;
 using Newtonsoft.Json;
+using FlagsmithEngine.Trait.Models;
 
 namespace Flagsmith.DotnetClient.Test
 {
@@ -37,6 +38,20 @@ namespace Flagsmith.DotnetClient.Test
             return flags;
         }
         public async Task TriggerEnvironmentUpdate() => await this.GetAndUpdateEnvironmentFromApi();
+        protected override async Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
+        {
+            await Task.Delay(0);
+            var identityResponse = JsonConvert.DeserializeObject<Identity>(Fixtures.ApiIdentityResponse);
+            totalFucntionCalls[nameof(GetIdentityFlagsFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromApi), out int i) ? i + 1 : 1;
+            return identityResponse.flags;
+
+        }
+        protected override List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
+        {
+            var flags = new List<Flag> { new Flag(new Feature(1, "some_feature"), true, "some_value") };
+            totalFucntionCalls[nameof(GetIdentityFlagsFromDocuments)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromDocuments), out int i) ? i + 1 : 1;
+            return flags;
+        }
 
         private void _initDict()
         {

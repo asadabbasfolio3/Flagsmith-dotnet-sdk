@@ -10,7 +10,7 @@ namespace Flagsmith.DotnetClient.Test
     internal class Fixtures
     {
         public static string ApiKey => "text_key";
-        public static string ApiUrl => "http://test_url";
+        public static string ApiUrl => "http://test_url/";
         public static AnalyticsProcessorTest GetAnalyticalProcessorTest() => new AnalyticsProcessorTest(new HttpClient(), ApiKey, ApiUrl);
         public static FlagsmithConfiguration FlagsmithConfiguration() => new FlagsmithConfiguration { EnableClientSideEvaluation = true, EnvironmentKey = ApiKey };
         public static JObject JsonObject = JObject.Parse(@"{
