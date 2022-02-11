@@ -18,28 +18,27 @@ namespace Flagsmith
         public static AnalyticFlag FromFeatureStateModel(AnalyticsProcessor analyticsProcessor, FeatureStateModel featureStateModel, string identityId = null) =>
            new AnalyticFlag(analyticsProcessor)
            {
-               feature = new Feature(featureStateModel.Feature.Id, featureStateModel.Feature.Name),
-               enabled = featureStateModel.Enabled,
-               value = featureStateModel.GetValue(identityId)?.ToString(),
+               Feature = new Feature(featureStateModel.Feature.Id, featureStateModel.Feature.Name),
+               Enabled = featureStateModel.Enabled,
+               Value = featureStateModel.GetValue(identityId)?.ToString(),
            };
 
         public static List<AnalyticFlag> FromFeatureStateModel(AnalyticsProcessor analyticsProcessor, List<FeatureStateModel> featureStateModels, string identityId = null)
-        {
-            return featureStateModels.Select(f => FromFeatureStateModel(analyticsProcessor, f, identityId)).ToList();
-        }
+        => featureStateModels.Select(f => FromFeatureStateModel(analyticsProcessor, f, identityId)).ToList();
         public static List<AnalyticFlag> FromApiFlag(AnalyticsProcessor analyticsProcessor, List<Flag> flags)
-        {
-            return flags.Select(flag => new AnalyticFlag(analyticsProcessor)
-            {
-                enabled = flag.IsEnabled(),
-                value = flag.GetValue(),
-                feature = flag.GetFeature()
-            }).ToList();
-        }
+        => flags.Select(flag => ToAnalyticFlag(analyticsProcessor, flag)).ToList();
+        private static AnalyticFlag ToAnalyticFlag(AnalyticsProcessor analyticsProcessor, Flag flag)
+          => new AnalyticFlag(analyticsProcessor)
+          {
+              Enabled = flag.IsEnabled(),
+              Value = flag.GetValue(),
+              Feature = flag.GetFeature()
+          };
+
         public override string GetValue()
         {
-            _ = _AnalyticsProcessor.TrackFeature(featureId);
-            return value;
+            _ = _AnalyticsProcessor.TrackFeature(FeatureId);
+            return Value;
         }
     }
 }

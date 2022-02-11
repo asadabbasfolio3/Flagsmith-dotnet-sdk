@@ -71,7 +71,7 @@ namespace Flagsmith
         /// Check feature exists and is enabled optionally for a specific identity
         /// </summary>
         /// <returns>Null if Flagsmith is unaccessible</returns>
-        public async Task<bool?> HasFeatureFlag(string featureId, string identity = null)
+        public async Task<bool?> HasFeatureFlag(string featureName, string identity = null)
         {
             List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
             if (flags == null)
@@ -81,7 +81,7 @@ namespace Flagsmith
 
             foreach (Flag flag in flags)
             {
-                if (flag.GetFeature().GetName().Equals(featureId) && flag.IsEnabled())
+                if (flag.GetFeature().GetName().Equals(featureName) && flag.IsEnabled())
                 {
                     return true;
                 }
@@ -93,7 +93,7 @@ namespace Flagsmith
         /// <summary>
         /// Get remote config value optionally for a specific identity
         /// </summary>
-        public async Task<string> GetFeatureValue(string featureId, string identity = null)
+        public async Task<string> GetFeatureValue(string featureName, string identity = null)
         {
             List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
             if (flags == null)
@@ -103,13 +103,13 @@ namespace Flagsmith
 
             foreach (Flag flag in flags)
             {
-                if (flag.GetFeature().GetName().Equals(featureId))
+                if (flag.GetFeature().GetName().Equals(featureName))
                 {
                     return flag.GetValue();
                 }
             }
-
-            return null;
+            var value = configuration.DefaultFlagHandler.Invoke(featureName)?.GetValue();
+            return value != null ? value : throw new FlagsmithClientError("Feature does not exist: " + featureName);
         }
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace Flagsmith
             {
                 Console.WriteLine("\nHTTP Request Exception Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
-                return string.Empty;
+                throw new FlagsmithAPIError("Unable to get valid response from Flagsmith API");
             }
         }
 
@@ -347,7 +347,7 @@ namespace Flagsmith
                 return null;
             }
         }
-        private async Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
+        protected async virtual Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
         {
             try
             {
@@ -368,10 +368,10 @@ namespace Flagsmith
             var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
             return new List<Flag>(analyticFlag);
         }
-        private List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
+        protected virtual List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
         {
             var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits };
-            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(Environment, identity));
+            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(Environment, identity), identity.CompositeKey);
             return new List<Flag>(analyticFlag);
         }
         ~FlagsmithClient() => _PollingManager.StopPoll();
