@@ -26,7 +26,6 @@ namespace Flagsmith
 
         [JsonProperty("feature_state_value")]
         protected string Value = null;
-
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 namespace Flagsmith
 {
@@ -17,6 +18,7 @@ namespace Flagsmith
         public bool EnableClientSideEvaluation { get; set; }
         public int EnvironmentRefreshIntervalSeconds { get; set; } = 60;
         public Func<string, Flag> DefaultFlagHandler;
+        public ILogger Logger { get; set; }
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(ApiUrl) && !string.IsNullOrEmpty(EnvironmentKey);
