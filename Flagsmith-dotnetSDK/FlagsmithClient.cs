@@ -11,6 +11,7 @@ using FlagsmithEngine.Interfaces;
 using System.Linq;
 using FlagsmithEngine.Identity.Models;
 using FlagsmithEngine.Trait.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Flagsmith
 {
@@ -366,8 +367,16 @@ namespace Flagsmith
         }
         protected async virtual Task GetAndUpdateEnvironmentFromApi()
         {
-            var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
-            Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
+            try
+            {
+                var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
+                Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
+                this.configuration.Logger?.LogInformation("Local Environment updated: " + json);
+            }
+            catch (FlagsmithAPIError ex)
+            {
+                this.configuration.Logger?.LogError(ex.Message);
+            }
         }
         protected async virtual Task<List<Flag>> GetFeatureFlagsFromApi()
         {
