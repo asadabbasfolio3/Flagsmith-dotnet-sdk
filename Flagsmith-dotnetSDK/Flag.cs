@@ -1,18 +1,31 @@
 using Newtonsoft.Json;
+using FlagsmithEngine.Feature.Models;
+using FlagsmithEngine.Identity.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Flagsmith
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class Flag
     {
-        [JsonProperty]
-        private Feature feature = null;
+        public Flag() { }
+        public Flag(Feature feature, bool enabled, string value)
+        {
+            this.Feature = feature;
+            this.Enabled = enabled;
+            this.Value = value;
+        }
+        [JsonProperty("featureId")]
+        protected int FeatureId;
+        [JsonProperty("feature")]
+        protected Feature Feature = null;
 
-        [JsonProperty]
-        private bool enabled = false;
+        [JsonProperty("enabled")]
+        protected bool Enabled = false;
 
         [JsonProperty("feature_state_value")]
-        private string value = null;
+        protected string Value = null;
 
         public override string ToString()
         {
@@ -21,17 +34,20 @@ namespace Flagsmith
 
         public Feature GetFeature()
         {
-            return feature;
+            return Feature;
         }
 
         public bool IsEnabled()
         {
-            return enabled;
+            return Enabled;
         }
 
-        public string GetValue()
+        public virtual string GetValue()
         {
-            return value;
+            return Value;
         }
+
+
+
     }
 }

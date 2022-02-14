@@ -16,21 +16,25 @@ namespace Flagsmith
         readonly string _EnvironmentKey;
         readonly int _TimeOut;
         DateTime _LastFlushed;
-        Dictionary<int, int> _AnalyticsData;
+        protected Dictionary<int, int> AnalyticsData;
         HttpClient _HttpClient;
 
         public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, int timeOut = 3)
         {
             _EnvironmentKey = environmentKey;
-            _AnalyticsEndPoint = baseApiUrl;
+            _AnalyticsEndPoint = baseApiUrl + "analytics/flags/";
             _TimeOut = timeOut;
             _LastFlushed = DateTime.Now;
-            _AnalyticsData = new Dictionary<int, int>();
+            AnalyticsData = new Dictionary<int, int>();
             _HttpClient = httpClient;
         }
-        private async Task Flush()
+        /// <summary>
+        /// Post the features on the provided endpoint and clear the cached data.
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task Flush()
         {
-            if (_AnalyticsData?.Any() == false)
+            if (AnalyticsData?.Any() == false)
                 return;
             var request = new HttpRequestMessage(HttpMethod.Post, _AnalyticsEndPoint)
             {
@@ -38,17 +42,22 @@ namespace Flagsmith
                 {
                      { "X-Environment-Key", _EnvironmentKey }
                 },
-                Content = new StringContent(JsonConvert.SerializeObject(_AnalyticsData))
+                Content = new StringContent(JsonConvert.SerializeObject(AnalyticsData))
             };
             var tokenSource = new CancellationTokenSource();
             tokenSource.CancelAfter(TimeSpan.FromSeconds(_TimeOut));
             await _HttpClient.SendAsync(request, new CancellationTokenSource().Token);
-            _AnalyticsData.Clear();
+            AnalyticsData.Clear();
             _LastFlushed = DateTime.Now;
         }
+        /// <summary>
+        /// Send analytics to server about feature usage.
+        /// </summary>
+        /// <param name="featureId"></param>
+        /// <returns></returns>
         public async Task TrackFeature(int featureId)
         {
-            _AnalyticsData[featureId] += 1;
+            AnalyticsData[featureId] = AnalyticsData.TryGetValue(featureId, out int value) ? value + 1 : 1;
             if ((DateTime.Now - _LastFlushed).Seconds > AnalyticsTimer)
                 await Flush();
         }
