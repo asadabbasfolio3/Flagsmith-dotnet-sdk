@@ -120,7 +120,7 @@ namespace Flagsmith
                 }
             }
             var value = configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
-            return value != null ? value : throw new FlagsmithClientError("Feature does not exist: " + featureName);
+            return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
         }
         public async Task<Flag> GetFeatureFlag(string featureName, string identity = null)
         {
@@ -148,7 +148,7 @@ namespace Flagsmith
                 }
             }
             var value = configuration.DefaultFlagHandler.Invoke(featureName);
-            return value != null ? value : throw new FlagsmithClientError("Feature does not exist: " + featureName);
+            return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
         }
 
         /// <summary>

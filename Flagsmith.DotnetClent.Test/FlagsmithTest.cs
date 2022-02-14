@@ -78,7 +78,7 @@ namespace Flagsmith.DotnetClient.Test
 
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(Fixtures.FlagsmithConfiguration());
-            var flags = await flagsmithClientTest.GetFeatureFlags("identifier", null);
+            _ = await flagsmithClientTest.GetFeatureFlags("identifier", null);
             Assert.Equal(1, flagsmithClientTest["GetIdentityFlagsFromDocuments"]);
         }
         [Fact]
