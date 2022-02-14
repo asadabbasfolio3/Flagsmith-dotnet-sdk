@@ -36,7 +36,7 @@ jobs:
         strategy:
             max-parallel: 4
             matrix:
-                dotnet-version: ["3.1", "5.0.101", "6.0"]
+                dotnet-version: ["3.0", "5.0"]
                 working-directory: ["Flagsmith-dotnetSDK", "EngineTest","Flagsmith.DotnetClent.Test"]
         
         steps:
@@ -45,10 +45,15 @@ jobs:
             with:
                 fetch-depth: 0
 
-          - name: Set up Dotnet ${{ matrix.dotnet-version }}
+          - name: Set up Dotnet 3.0
             uses: actions/setup-dotnet@v1
             with:
-                dotnet-version: ${{ matrix.dotnet-version }}
+                dotnet-version: 3.0
+                
+          - name: Set up Dotnet 5.0
+            uses: actions/setup-dotnet@v1
+            with:
+                dotnet-version: 5.0
 
           - name: Run Tests
             run: dotnet test
