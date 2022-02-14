@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace Flagsmith
 {
@@ -18,8 +19,8 @@ namespace Flagsmith
         DateTime _LastFlushed;
         protected Dictionary<int, int> AnalyticsData;
         HttpClient _HttpClient;
-
-        public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, int timeOut = 3)
+        ILogger _Logger;
+        public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, ILogger logger = null, int timeOut = 3)
         {
             _EnvironmentKey = environmentKey;
             _AnalyticsEndPoint = baseApiUrl + "analytics/flags/";
@@ -27,6 +28,7 @@ namespace Flagsmith
             _LastFlushed = DateTime.Now;
             AnalyticsData = new Dictionary<int, int>();
             _HttpClient = httpClient;
+            _Logger = logger;
         }
         /// <summary>
         /// Post the features on the provided endpoint and clear the cached data.
@@ -36,19 +38,34 @@ namespace Flagsmith
         {
             if (AnalyticsData?.Any() == false)
                 return;
-            var request = new HttpRequestMessage(HttpMethod.Post, _AnalyticsEndPoint)
+            try
             {
-                Headers =
+                var analyticsJson = JsonConvert.SerializeObject(AnalyticsData);
+                var request = new HttpRequestMessage(HttpMethod.Post, _AnalyticsEndPoint)
                 {
-                     { "X-Environment-Key", _EnvironmentKey }
+                    Headers =
+                {
+                    { "X-Environment-Key", _EnvironmentKey }
                 },
-                Content = new StringContent(JsonConvert.SerializeObject(AnalyticsData))
-            };
-            var tokenSource = new CancellationTokenSource();
-            tokenSource.CancelAfter(TimeSpan.FromSeconds(_TimeOut));
-            await _HttpClient.SendAsync(request, new CancellationTokenSource().Token);
-            AnalyticsData.Clear();
-            _LastFlushed = DateTime.Now;
+                    Content = new StringContent(analyticsJson, Encoding.UTF8, "application/json")
+                };
+                var tokenSource = new CancellationTokenSource();
+                tokenSource.CancelAfter(TimeSpan.FromSeconds(_TimeOut));
+                var response = await _HttpClient.SendAsync(request, new CancellationTokenSource().Token);
+                response.EnsureSuccessStatusCode();
+                _Logger?.LogInformation("Analytics posted: " + analyticsJson);
+                AnalyticsData.Clear();
+                _Logger?.LogInformation("Analytics cleared: " + analyticsJson);
+                _LastFlushed = DateTime.Now;
+            }
+            catch (HttpRequestException ex)
+            {
+                _Logger?.LogError("Analytics api error: " + ex.Message);
+            }
+            catch (TaskCanceledException)
+            {
+                _Logger?.LogWarning("Analytics request cancelled: Api request takes too long to respond");
+            }
         }
         /// <summary>
         /// Send analytics to server about feature usage.

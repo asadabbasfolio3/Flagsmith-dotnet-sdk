@@ -37,7 +37,7 @@ namespace Flagsmith
 
         public override string GetValue()
         {
-            _ = _AnalyticsProcessor.TrackFeature(FeatureId);
+            _ = _AnalyticsProcessor.TrackFeature(Feature.GetId());
             return Value;
         }
     }
