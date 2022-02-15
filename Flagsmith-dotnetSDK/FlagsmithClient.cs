@@ -12,6 +12,8 @@ using System.Linq;
 using FlagsmithEngine.Identity.Models;
 using FlagsmithEngine.Trait.Models;
 using Microsoft.Extensions.Logging;
+using System.Threading;
+using Polly;
 
 namespace Flagsmith
 {
@@ -48,7 +50,8 @@ namespace Flagsmith
                 instance = this;
                 _PollingManager = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
                 _Engine = new Engine();
-                _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl, configuration.Logger);
+                if (configuration.EnableAnalytics)
+                    _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl, configuration.Logger);
                 if (configuration.EnableClientSideEvaluation)
                     _ = _PollingManager.StartPoll();
 
@@ -330,29 +333,37 @@ namespace Flagsmith
             }
         }
 
-        private async Task<string> GetJSON(HttpMethod method, string url, string body = null)
+        protected virtual async Task<string> GetJSON(HttpMethod method, string url, string body = null)
         {
             try
             {
-                HttpRequestMessage request = new HttpRequestMessage(method, url)
+                var policy = HttpPolicies.GetRetryPolicyAwaitable(configuration.Retries);
+                return await (await policy.ExecuteAsync(async () =>
                 {
-                    Headers = {
+                    HttpRequestMessage request = new HttpRequestMessage(method, url)
+                    {
+                        Headers = {
                         { "X-Environment-Key", configuration.EnvironmentKey }
                     }
-                };
-                if (body != null)
-                {
-                    request.Content = new StringContent(body, Encoding.UTF8, "application/json");
-                }
-                HttpResponseMessage response = await httpClient.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStringAsync();
+                    };
+                    if (body != null)
+                    {
+                        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+                    }
+                    var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(configuration.RequestTimeout ?? 100));
+                    HttpResponseMessage response = await httpClient.SendAsync(request, cancellationTokenSource.Token);
+                    return response.EnsureSuccessStatusCode();
+                })).Content.ReadAsStringAsync();
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine("\nHTTP Request Exception Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
                 throw new FlagsmithAPIError("Unable to get valid response from Flagsmith API");
+            }
+            catch (TaskCanceledException)
+            {
+                throw new FlagsmithAPIError("Request cancelled: Api server takes too long to respond");
             }
         }
 
