@@ -14,7 +14,10 @@ namespace Flagsmith.DotnetClient.Test
         [Fact]
         public void TestFlagsmithStartsPollingManagerOnInitIfEnabled()
         {
-
+            FlagsmithClientTest.instance = null;
+            var config = Fixtures.FlagsmithConfiguration();
+            var flagsmithClientTest = new FlagsmithClientTest(config);
+            Assert.Equal(1, flagsmithClientTest["GetAndUpdateEnvironmentFromApi"]);
         }
         [Fact]
         public async Task TestUpdateEnvironmentSetsEnvironment()
@@ -68,11 +71,6 @@ namespace Flagsmith.DotnetClient.Test
             Assert.Equal("some_feature", flags[0].GetFeature().GetName());
         }
         [Fact]
-        public void TestGetIdentityFlagsCallsApiWhenNoLocalEnvironmentWithTraits()
-        {
-            //currenlty get api call is implemnted for identity flags so no need for traits post api test
-        }
-        [Fact]
         public async Task TestGetIdentityFlagsUsesLocalEnvironmentWhenAvailable()
         {
 
@@ -91,9 +89,14 @@ namespace Flagsmith.DotnetClient.Test
             await Assert.ThrowsAsync<FlagsmithAPIError>(async () => await flagsmithClientTest.GetFeatureFlags());
         }
         [Fact]
-        public void TestNon200ResponseRaisesFlagsmithApiError()
+        public async Task TestNon200ResponseRaisesFlagsmithApiError()
         {
-
+            FlagsmithClientTest.instance = null;
+            var config = Fixtures.FlagsmithConfiguration();
+            config.ApiUrl = Fixtures.ApiUrl;
+            config.EnableClientSideEvaluation = false;
+            var flagsmithClientTest = new FlagsmithClient(config);
+            await Assert.ThrowsAsync<FlagsmithAPIError>(async () => await flagsmithClientTest.GetFeatureFlags());
         }
         [Fact]
         public async Task TestDefaultFlagIsUsedWhenNoEnvironmentFlagsReturned()
@@ -104,7 +107,8 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
-            var flag = await flagsmithClientTest.GetFeatureFlag("some_feature1");
+            flagsmithClientTest.GetJsonOutput = () => Task.FromResult("[]");
+            var flag = await flagsmithClientTest.GetFeatureFlag("some_feature");
             Assert.True(flag.IsEnabled());
             Assert.Equal("some-default-value", flag.GetValue());
         }
@@ -130,7 +134,8 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
-            var flag = await flagsmithClientTest.GetFeatureFlag("some_feature1", "identifier");
+            flagsmithClientTest.GetJsonOutput = () => Task.FromResult("{}");
+            var flag = await flagsmithClientTest.GetFeatureFlag("some_feature", "identifier");
             Assert.True(flag.IsEnabled());
             Assert.Equal("some-default-value", flag.GetValue());
         }
@@ -148,9 +153,18 @@ namespace Flagsmith.DotnetClient.Test
             Assert.NotEqual("some-default-value", flag.GetValue());
         }
         [Fact]
-        public void TestDefaultFlagsAreUsedIfApiErrorAndDefaultFlagHandlerGiven()
+        public async Task TestDefaultFlagsAreUsedIfApiErrorAndDefaultFlagHandlerGiven()
         {
-
+            var defaultFlag = new Flag(null, true, "some-default-value");
+            var config = Fixtures.FlagsmithConfiguration();
+            config.EnableClientSideEvaluation = false;
+            config.DefaultFlagHandler = (string name) => defaultFlag;
+            FlagsmithClientTest.instance = null;
+            var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.GetJsonOutput = () => throw new FlagsmithAPIError("error");
+            var flag = await flagsmithClientTest.GetFeatureFlag("some_feature");
+            Assert.True(flag.IsEnabled());
+            Assert.Equal("some-default-value", flag.GetValue());
         }
     }
 

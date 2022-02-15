@@ -12,7 +12,7 @@ namespace Flagsmith
 {
     public class AnalyticsProcessor
     {
-        const int AnalyticsTimer = 10;
+        int _FlushIntervalSeconds = 10;
         readonly string _AnalyticsEndPoint;
         readonly string _EnvironmentKey;
         readonly int _TimeOut;
@@ -20,7 +20,7 @@ namespace Flagsmith
         protected Dictionary<int, int> AnalyticsData;
         HttpClient _HttpClient;
         ILogger _Logger;
-        public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, ILogger logger = null, int timeOut = 3)
+        public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, ILogger logger = null, int timeOut = 3, int flushIntervalSeconds = 10)
         {
             _EnvironmentKey = environmentKey;
             _AnalyticsEndPoint = baseApiUrl + "analytics/flags/";
@@ -29,6 +29,7 @@ namespace Flagsmith
             AnalyticsData = new Dictionary<int, int>();
             _HttpClient = httpClient;
             _Logger = logger;
+            _FlushIntervalSeconds = flushIntervalSeconds;
         }
         /// <summary>
         /// Post the features on the provided endpoint and clear the cached data.
@@ -75,7 +76,7 @@ namespace Flagsmith
         public async Task TrackFeature(int featureId)
         {
             AnalyticsData[featureId] = AnalyticsData.TryGetValue(featureId, out int value) ? value + 1 : 1;
-            if ((DateTime.Now - _LastFlushed).Seconds > AnalyticsTimer)
+            if ((DateTime.Now - _LastFlushed).Seconds > _FlushIntervalSeconds)
                 await Flush();
         }
     }

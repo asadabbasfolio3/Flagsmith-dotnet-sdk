@@ -48,7 +48,8 @@ namespace Flagsmith
                 instance = this;
                 _PollingManager = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
                 _Engine = new Engine();
-                _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl, configuration.Logger);
+                if (configuration.EnableAnalytics)
+                    _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl, configuration.Logger);
                 if (configuration.EnableClientSideEvaluation)
                     _ = _PollingManager.StartPoll();
 
@@ -330,7 +331,7 @@ namespace Flagsmith
             }
         }
 
-        private async Task<string> GetJSON(HttpMethod method, string url, string body = null)
+        protected virtual async Task<string> GetJSON(HttpMethod method, string url, string body = null)
         {
             try
             {

@@ -13,7 +13,7 @@ namespace Flagsmith
         private readonly AnalyticsProcessor _AnalyticsProcessor;
         public AnalyticFlag(AnalyticsProcessor analyticsProcessor)
         {
-            _AnalyticsProcessor = analyticsProcessor ?? throw new ArgumentNullException(nameof(analyticsProcessor));
+            _AnalyticsProcessor = analyticsProcessor;
         }
         public static AnalyticFlag FromFeatureStateModel(AnalyticsProcessor analyticsProcessor, FeatureStateModel featureStateModel, string identityId = null) =>
            new AnalyticFlag(analyticsProcessor)
@@ -37,7 +37,7 @@ namespace Flagsmith
 
         public override string GetValue()
         {
-            _ = _AnalyticsProcessor.TrackFeature(Feature.GetId());
+            _ = _AnalyticsProcessor?.TrackFeature(Feature.GetId());
             return Value;
         }
     }

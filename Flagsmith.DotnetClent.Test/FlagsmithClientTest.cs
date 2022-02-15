@@ -14,6 +14,7 @@ namespace Flagsmith.DotnetClient.Test
     internal class FlagsmithClientTest : FlagsmithClient
     {
         Dictionary<string, int> totalFucntionCalls;
+        public Func<Task<string>> GetJsonOutput { get; set; }
         public FlagsmithClientTest(FlagsmithConfiguration flagsmithConfiguration) : base(flagsmithConfiguration)
         {
             _initDict();
@@ -32,16 +33,16 @@ namespace Flagsmith.DotnetClient.Test
         }
         protected override async Task<List<Flag>> GetFeatureFlagsFromApi()
         {
-            await Task.Delay(0);
-            var flags = JsonConvert.DeserializeObject<List<Flag>>(Fixtures.ApiFlagResponse);
+            GetJsonOutput ??= () => Task.FromResult(Fixtures.ApiFlagResponse);
+            var flags = JsonConvert.DeserializeObject<List<Flag>>(await GetJSON(null, null));
             totalFucntionCalls[nameof(GetFeatureFlagsFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetFeatureFlagsFromApi), out int i) ? i + 1 : 1;
             return flags;
         }
         public async Task TriggerEnvironmentUpdate() => await this.GetAndUpdateEnvironmentFromApi();
         protected override async Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
         {
-            await Task.Delay(0);
-            var identityResponse = JsonConvert.DeserializeObject<Identity>(Fixtures.ApiIdentityResponse);
+            GetJsonOutput ??= () => Task.FromResult(Fixtures.ApiIdentityResponse);
+            var identityResponse = JsonConvert.DeserializeObject<Identity>(await GetJsonOutput());
             totalFucntionCalls[nameof(GetIdentityFlagsFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromApi), out int i) ? i + 1 : 1;
             return identityResponse.flags;
 
@@ -51,6 +52,19 @@ namespace Flagsmith.DotnetClient.Test
             var flags = new List<Flag> { new Flag(new Feature(1, "some_feature"), true, "some_value") };
             totalFucntionCalls[nameof(GetIdentityFlagsFromDocuments)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromDocuments), out int i) ? i + 1 : 1;
             return flags;
+        }
+        protected override async Task<string> GetJSON(HttpMethod method, string url, string body = null)
+        {
+            string output = string.Empty;
+            try
+            {
+                output = await GetJsonOutput?.Invoke() ?? string.Empty;
+            }
+            finally
+            {
+                GetJsonOutput = null;
+            }
+            return output;
         }
 
         private void _initDict()
