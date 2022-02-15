@@ -21,6 +21,8 @@ namespace Flagsmith
         public Func<string, Flag> DefaultFlagHandler { get; set; }
         public ILogger Logger { get; set; }
         public bool EnableAnalytics { get; set; }
+        public Double? RequestTimeout { get; set; }
+        public int? Retries { get; set; }
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(ApiUrl) && !string.IsNullOrEmpty(EnvironmentKey);
