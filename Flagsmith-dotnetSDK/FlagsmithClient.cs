@@ -106,7 +106,7 @@ namespace Flagsmith
             }
             catch (FlagsmithAPIError)
             {
-                var val = configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
+                var val = await configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
                 if (val != null)
                     return val;
                 throw;
@@ -118,11 +118,11 @@ namespace Flagsmith
                 {
                     if (flag.GetFeature().GetName().Equals(featureName))
                     {
-                        return flag.GetValue();
+                        return await flag.GetValue();
                     }
                 }
             }
-            var value = configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
+            var value = await configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
             return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
         }
         public async Task<Flag> GetFeatureFlag(string featureName, string identity = null)
@@ -380,7 +380,7 @@ namespace Flagsmith
         {
             try
             {
-                var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment");
+                var json = await GetJSON(HttpMethod.Get, configuration.ApiUrl + "environment-document/");
                 Environment = JsonConvert.DeserializeObject<EnvironmentModel>(json);
                 this.configuration.Logger?.LogInformation("Local Environment updated: " + json);
             }
@@ -403,7 +403,7 @@ namespace Flagsmith
             var flags = JsonConvert.DeserializeObject<Identity>(json)?.flags;
             return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
         }
-        private List<Flag> GetFeatureFlagsFromDocuments()
+        protected virtual List<Flag> GetFeatureFlagsFromDocuments()
         {
             var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
             return new List<Flag>(analyticFlag);

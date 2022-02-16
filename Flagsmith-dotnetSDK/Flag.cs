@@ -3,6 +3,7 @@ using FlagsmithEngine.Feature.Models;
 using FlagsmithEngine.Identity.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Flagsmith
 {
@@ -41,11 +42,10 @@ namespace Flagsmith
             return Enabled;
         }
 
-        public virtual string GetValue()
+        public virtual Task<string> GetValue()
         {
-            return Value;
+            return Task.FromResult(Value);
         }
-
 
 
     }
