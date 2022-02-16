@@ -9,13 +9,13 @@ using System.Threading;
 using Newtonsoft.Json;
 using FlagsmithEngine.Trait.Models;
 using System.Linq;
+using Moq;
 
 namespace Flagsmith.DotnetClient.Test
 {
     internal class FlagsmithClientTest : FlagsmithClient
     {
         Dictionary<string, int> totalFucntionCalls;
-        public Func<Task<string>> GetJsonOutput { get; set; }
         public FlagsmithClientTest(FlagsmithConfiguration flagsmithConfiguration) : base(flagsmithConfiguration)
         {
             _initDict();
@@ -34,16 +34,14 @@ namespace Flagsmith.DotnetClient.Test
         }
         protected override async Task<List<Flag>> GetFeatureFlagsFromApi()
         {
-            GetJsonOutput ??= () => Task.FromResult(Fixtures.ApiFlagResponse);
-            var flags = JsonConvert.DeserializeObject<List<Flag>>(await GetJSON(null, null));
+            var flags = JsonConvert.DeserializeObject<List<Flag>>(await GetJSON(HttpMethod.Get, Fixtures.ApiUrl));
             totalFucntionCalls[nameof(GetFeatureFlagsFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetFeatureFlagsFromApi), out int i) ? i + 1 : 1;
             return flags;
         }
         public async Task TriggerEnvironmentUpdate() => await this.GetAndUpdateEnvironmentFromApi();
         protected override async Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
         {
-            GetJsonOutput ??= () => Task.FromResult(Fixtures.ApiIdentityResponse);
-            var identityResponse = JsonConvert.DeserializeObject<Identity>(await GetJsonOutput());
+            var identityResponse = JsonConvert.DeserializeObject<Identity>(await GetJSON(HttpMethod.Get, Fixtures.ApiUrl));
             totalFucntionCalls[nameof(GetIdentityFlagsFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromApi), out int i) ? i + 1 : 1;
             return identityResponse.flags;
 
@@ -59,18 +57,23 @@ namespace Flagsmith.DotnetClient.Test
             totalFucntionCalls[nameof(GetFeatureFlagsFromDocuments)] = totalFucntionCalls.TryGetValue(nameof(GetFeatureFlagsFromDocuments), out int i) ? i + 1 : 1;
             return Fixtures.Environment.FeatureStates.Select(x => new Flag(new Feature(x.Feature.Id, x.Feature.Name), x.Enabled, x.GetValue()?.ToString())).ToList();
         }
-        protected override async Task<string> GetJSON(HttpMethod method, string url, string body = null)
+        public void MockHttpResponse(HttpResponseMessage httpResponseMessage)
         {
-            string output = string.Empty;
-            try
-            {
-                output = await GetJsonOutput?.Invoke() ?? string.Empty;
-            }
-            finally
-            {
-                GetJsonOutput = null;
-            }
-            return output;
+            var httpClientMock = new Mock<HttpClient>();
+            httpClientMock.Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new HttpResponseMessage()
+                {
+                    StatusCode = httpResponseMessage.StatusCode,
+                    Content = httpResponseMessage.Content
+                }));
+            httpClient = httpClientMock.Object;
+        }
+        public void MockHttpThrowConnectionError()
+        {
+            var httpClientMock = new Mock<HttpClient>();
+            httpClientMock.Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new HttpRequestException());
+            httpClient = httpClientMock.Object;
         }
 
         private void _initDict()

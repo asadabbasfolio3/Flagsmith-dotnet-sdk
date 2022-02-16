@@ -22,7 +22,7 @@ namespace Flagsmith
         public static FlagsmithClient instance;
 
         private readonly FlagsmithConfiguration configuration;
-        static HttpClient httpClient;
+        protected static HttpClient httpClient;
         protected EnvironmentModel Environment { get; set; }
         private readonly PollingManager _PollingManager;
         private readonly IEngine _Engine;

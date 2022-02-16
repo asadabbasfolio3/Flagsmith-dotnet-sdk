@@ -38,6 +38,11 @@ namespace Flagsmith.DotnetClient.Test
             var config = Fixtures.FlagsmithConfiguration();
             config.EnableClientSideEvaluation = false;
             var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(Fixtures.ApiFlagResponse)
+            });
             var flags = await flagsmithClientTest.GetFeatureFlags();
             Assert.Equal(1, flagsmithClientTest["GetFeatureFlagsFromApi"]);
             Assert.True(flags[0].IsEnabled());
@@ -64,6 +69,11 @@ namespace Flagsmith.DotnetClient.Test
             var config = Fixtures.FlagsmithConfiguration();
             config.EnableClientSideEvaluation = false;
             var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(Fixtures.ApiIdentityResponse)
+            });
             var flags = await flagsmithClientTest.GetFeatureFlags("identifier");
             Assert.Equal(1, flagsmithClientTest["GetIdentityFlagsFromApi"]);
             Assert.True(flags[0].IsEnabled());
@@ -85,7 +95,8 @@ namespace Flagsmith.DotnetClient.Test
             FlagsmithClientTest.instance = null;
             var config = Fixtures.FlagsmithConfiguration();
             config.EnableClientSideEvaluation = false;
-            var flagsmithClientTest = new FlagsmithClient(config);
+            var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.MockHttpThrowConnectionError();
             await Assert.ThrowsAsync<FlagsmithAPIError>(async () => await flagsmithClientTest.GetFeatureFlags());
         }
         [Fact]
@@ -95,7 +106,11 @@ namespace Flagsmith.DotnetClient.Test
             var config = Fixtures.FlagsmithConfiguration();
             config.ApiUrl = Fixtures.ApiUrl;
             config.EnableClientSideEvaluation = false;
-            var flagsmithClientTest = new FlagsmithClient(config);
+            var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.Forbidden,
+            });
             await Assert.ThrowsAsync<FlagsmithAPIError>(async () => await flagsmithClientTest.GetFeatureFlags());
         }
         [Fact]
@@ -107,7 +122,11 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
-            flagsmithClientTest.GetJsonOutput = () => Task.FromResult("[]");
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.Forbidden,
+                Content = new StringContent("[]")
+            });
             var flag = await flagsmithClientTest.GetFeatureFlag("some_feature");
             Assert.True(flag.IsEnabled());
             Assert.Equal("some-default-value", await flag.GetValue());
@@ -121,6 +140,11 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(Fixtures.ApiFlagResponse)
+            });
             var flag = await flagsmithClientTest.GetFeatureFlag("some_feature");
             Assert.True(flag.IsEnabled());
             Assert.NotEqual("some-default-value", await flag.GetValue());
@@ -134,7 +158,11 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
-            flagsmithClientTest.GetJsonOutput = () => Task.FromResult("{}");
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent("{}")
+            });
             var flag = await flagsmithClientTest.GetFeatureFlag("some_feature", "identifier");
             Assert.True(flag.IsEnabled());
             Assert.Equal("some-default-value", await flag.GetValue());
@@ -148,6 +176,11 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Content = new StringContent(Fixtures.ApiIdentityResponse)
+            });
             var flag = await flagsmithClientTest.GetFeatureFlag("some_feature", "identifier");
             Assert.True(flag.IsEnabled());
             Assert.NotEqual("some-default-value", await flag.GetValue());
@@ -161,7 +194,10 @@ namespace Flagsmith.DotnetClient.Test
             config.DefaultFlagHandler = (string name) => defaultFlag;
             FlagsmithClientTest.instance = null;
             var flagsmithClientTest = new FlagsmithClientTest(config);
-            flagsmithClientTest.GetJsonOutput = () => throw new FlagsmithAPIError("error");
+            flagsmithClientTest.MockHttpResponse(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.Forbidden,
+            });
             var flag = await flagsmithClientTest.GetFeatureFlag("some_feature");
             Assert.True(flag.IsEnabled());
             Assert.Equal("some-default-value", await flag.GetValue());
