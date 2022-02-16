@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flagsmith
 {
-    public class AnalyticFlag : Flag
+    internal class AnalyticFlag : Flag
     {
         [JsonIgnore]
         private readonly AnalyticsProcessor _AnalyticsProcessor;
@@ -31,13 +31,14 @@ namespace Flagsmith
           => new AnalyticFlag(analyticsProcessor)
           {
               Enabled = flag.IsEnabled(),
-              Value = flag.GetValue(),
+              Value = flag.GetValue().Result,
               Feature = flag.GetFeature()
           };
 
-        public override string GetValue()
+        public override async Task<string> GetValue()
         {
-            _ = _AnalyticsProcessor?.TrackFeature(Feature.GetId());
+            if (_AnalyticsProcessor != null)
+                await _AnalyticsProcessor.TrackFeature(Feature.GetId());
             return Value;
         }
     }

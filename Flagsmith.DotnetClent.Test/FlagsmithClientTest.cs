@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using Newtonsoft.Json;
 using FlagsmithEngine.Trait.Models;
+using System.Linq;
 
 namespace Flagsmith.DotnetClient.Test
 {
@@ -52,6 +53,11 @@ namespace Flagsmith.DotnetClient.Test
             var flags = new List<Flag> { new Flag(new Feature(1, "some_feature"), true, "some_value") };
             totalFucntionCalls[nameof(GetIdentityFlagsFromDocuments)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromDocuments), out int i) ? i + 1 : 1;
             return flags;
+        }
+        protected override List<Flag> GetFeatureFlagsFromDocuments()
+        {
+            totalFucntionCalls[nameof(GetFeatureFlagsFromDocuments)] = totalFucntionCalls.TryGetValue(nameof(GetFeatureFlagsFromDocuments), out int i) ? i + 1 : 1;
+            return Fixtures.Environment.FeatureStates.Select(x => new Flag(new Feature(x.Feature.Id, x.Feature.Name), x.Enabled, x.GetValue()?.ToString())).ToList();
         }
         protected override async Task<string> GetJSON(HttpMethod method, string url, string body = null)
         {
