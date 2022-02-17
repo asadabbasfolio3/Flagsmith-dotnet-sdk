@@ -46,7 +46,7 @@ namespace Flagsmith.DotnetClient.Test
             return identityResponse.flags;
 
         }
-        protected override List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
+        protected override List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
         {
             var flags = new List<Flag> { new Flag(new Feature(1, "some_feature"), true, "some_value") };
             totalFucntionCalls[nameof(GetIdentityFlagsFromDocuments)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromDocuments), out int i) ? i + 1 : 1;
