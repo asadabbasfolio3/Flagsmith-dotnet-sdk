@@ -7,6 +7,7 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using Flagsmith.Extensions;
 
 namespace Flagsmith
 {
@@ -20,7 +21,8 @@ namespace Flagsmith
         protected Dictionary<int, int> AnalyticsData;
         HttpClient _HttpClient;
         ILogger _Logger;
-        public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, ILogger logger = null, int timeOut = 3, int flushIntervalSeconds = 10)
+        Dictionary<string, string> _CustomHeaders;
+        public AnalyticsProcessor(HttpClient httpClient, string environmentKey, string baseApiUrl, ILogger logger = null, Dictionary<string, string> customHeaders = null, int timeOut = 3, int flushIntervalSeconds = 10)
         {
             _EnvironmentKey = environmentKey;
             _AnalyticsEndPoint = baseApiUrl + "analytics/flags/";
@@ -30,6 +32,7 @@ namespace Flagsmith
             _HttpClient = httpClient;
             _Logger = logger;
             _FlushIntervalSeconds = flushIntervalSeconds;
+            _CustomHeaders = customHeaders;
         }
         /// <summary>
         /// Post the features on the provided endpoint and clear the cached data.
@@ -50,6 +53,7 @@ namespace Flagsmith
                 },
                     Content = new StringContent(analyticsJson, Encoding.UTF8, "application/json")
                 };
+                _CustomHeaders?.ForEach(kvp => request.Headers.Add(kvp.Key, kvp.Value));
                 var tokenSource = new CancellationTokenSource();
                 tokenSource.CancelAfter(TimeSpan.FromSeconds(_TimeOut));
                 var response = await _HttpClient.SendAsync(request, new CancellationTokenSource().Token);
@@ -57,7 +61,6 @@ namespace Flagsmith
                 _Logger?.LogInformation("Analytics posted: " + analyticsJson);
                 AnalyticsData.Clear();
                 _Logger?.LogInformation("Analytics cleared: " + analyticsJson);
-                _LastFlushed = DateTime.Now;
             }
             catch (HttpRequestException ex)
             {
@@ -67,6 +70,7 @@ namespace Flagsmith
             {
                 _Logger?.LogWarning("Analytics request cancelled: Api request takes too long to respond");
             }
+            _LastFlushed = DateTime.Now;
         }
         /// <summary>
         /// Send analytics to server about feature usage.

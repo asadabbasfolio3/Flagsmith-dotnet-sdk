@@ -21,14 +21,9 @@ namespace Flagsmith
                    HttpStatusCode.GatewayTimeout // 504
                 };
         public static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicyAwaitable(int? retries)
-        {
-            return Policy
+        => Policy
                 .Handle<HttpRequestException>()
                 .OrResult<HttpResponseMessage>(r => httpStatusCodesWorthRetrying.Contains(r.StatusCode))
                 .WaitAndRetryAsync(retries ?? 3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(0.5, retryAttempt)));
-
-
-
-        }
     }
 }
