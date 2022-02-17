@@ -13,7 +13,7 @@ using FlagsmithEngine.Trait.Models;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using Flagsmith.Extensions;
-
+using System.Linq;
 
 namespace Flagsmith
 {
@@ -68,16 +68,16 @@ namespace Flagsmith
         public async Task<List<Flag>> GetFeatureFlags()
             => Environment != null ? GetFeatureFlagsFromDocuments() : await GetFeatureFlagsFromApi();
 
-        public async Task<List<Flag>> GetFeatureFlags(string identity, List<TraitModel> traits = null)
+        public async Task<List<Flag>> GetFeatureFlags(string identity, List<Trait> traits = null)
              => Environment != null ? GetIdentityFlagsFromDocuments(identity, traits) : await GetIdentityFlagsFromApi(identity);
 
         /// <summary>
         /// Check feature exists and is enabled optionally for a specific identity
         /// </summary>
         /// <returns>Null if Flagsmith is unaccessible</returns>
-        public async Task<bool?> HasFeatureFlag(string featureName, string identity = null)
+        public async Task<bool?> HasFeatureFlag(string featureName, string identity = null, List<Trait> traits = null)
         {
-            List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
+            List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity, traits);
             if (flags == null)
             {
                 return null;
@@ -97,12 +97,12 @@ namespace Flagsmith
         /// <summary>
         /// Get remote config value optionally for a specific identity
         /// </summary>
-        public async Task<string> GetFeatureValue(string featureName, string identity = null)
+        public async Task<string> GetFeatureValue(string featureName, string identity = null, List<Trait> traits = null)
         {
             List<Flag> flags = null;
             try
             {
-                flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
+                flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity, traits);
             }
             catch (FlagsmithAPIError)
             {
@@ -125,12 +125,12 @@ namespace Flagsmith
             var value = await configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
             return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
         }
-        public async Task<Flag> GetFeatureFlag(string featureName, string identity = null)
+        public async Task<Flag> GetFeatureFlag(string featureName, string identity = null, List<Trait> traits = null)
         {
             List<Flag> flags = null;
             try
             {
-                flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity);
+                flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity, traits);
             }
             catch (FlagsmithAPIError)
             {
@@ -150,7 +150,7 @@ namespace Flagsmith
                     }
                 }
             }
-            var value = configuration.DefaultFlagHandler.Invoke(featureName);
+            var value = configuration.DefaultFlagHandler?.Invoke(featureName);
             return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
         }
 
@@ -409,9 +409,9 @@ namespace Flagsmith
             var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
             return new List<Flag>(analyticFlag);
         }
-        protected virtual List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<TraitModel> traits)
+        protected virtual List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
         {
-            var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits };
+            var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits?.Select(t => new TraitModel { TraitKey = t.GetKey(), TraitValue = t.GetIntValue() }).ToList() };
             var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(Environment, identity), identity.CompositeKey);
             return new List<Flag>(analyticFlag);
         }
