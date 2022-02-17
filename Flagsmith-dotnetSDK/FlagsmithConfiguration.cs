@@ -23,6 +23,7 @@ namespace Flagsmith
         public bool EnableAnalytics { get; set; }
         public Double? RequestTimeout { get; set; }
         public int? Retries { get; set; }
+        public Dictionary<string, string> CustomHeaders { get; set; }
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(ApiUrl) && !string.IsNullOrEmpty(EnvironmentKey);

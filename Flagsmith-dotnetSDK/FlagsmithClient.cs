@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 using FlagsmithEngine.Environment.Models;
 using FlagsmithEngine;
 using FlagsmithEngine.Interfaces;
-using System.Linq;
 using FlagsmithEngine.Identity.Models;
 using FlagsmithEngine.Trait.Models;
 using Microsoft.Extensions.Logging;
 using System.Threading;
-using Polly;
+using Flagsmith.Extensions;
+
 
 namespace Flagsmith
 {
@@ -51,7 +51,7 @@ namespace Flagsmith
                 _PollingManager = new PollingManager(GetAndUpdateEnvironmentFromApi, configuration.EnvironmentRefreshIntervalSeconds);
                 _Engine = new Engine();
                 if (configuration.EnableAnalytics)
-                    _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl, configuration.Logger);
+                    _AnalyticsProcessor = new AnalyticsProcessor(httpClient, configuration.EnvironmentKey, configuration.ApiUrl, configuration.Logger, configuration.CustomHeaders);
                 if (configuration.EnableClientSideEvaluation)
                     _ = _PollingManager.StartPoll();
 
@@ -343,9 +343,10 @@ namespace Flagsmith
                     HttpRequestMessage request = new HttpRequestMessage(method, url)
                     {
                         Headers = {
-                        { "X-Environment-Key", configuration.EnvironmentKey }
-                    }
+                            { "X-Environment-Key", configuration.EnvironmentKey }
+                        }
                     };
+                    configuration.CustomHeaders?.ForEach(kvp => request.Headers.Add(kvp.Key, kvp.Value));
                     if (body != null)
                     {
                         request.Content = new StringContent(body, Encoding.UTF8, "application/json");
