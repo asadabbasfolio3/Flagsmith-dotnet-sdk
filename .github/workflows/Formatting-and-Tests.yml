@@ -7,7 +7,7 @@ on:
 jobs:
     formatting:
         runs-on: ubuntu-latest
-        name: Check formatting
+        name: Check Build and formatting
 
         strategy:
           max-parallel: 2
@@ -23,7 +23,12 @@ jobs:
             - name: Set up Dotnet
               uses: actions/setup-dotnet@v1
               with:
-                  dotnet-version: "6.0"
+                  dotnet-version: "3.0"
+                  
+            - name: Install dependencies
+              run: dotnet restore
+            - name: Build
+              run: dotnet build --configuration Release --no-restore  
 
             - name: Check Formatting
               run: dotnet format --verify-no-changes
@@ -37,7 +42,7 @@ jobs:
             max-parallel: 4
             matrix:
                 dotnet-version: ["3.0", "5.0"]
-                working-directory: ["Flagsmith-dotnetSDK", "EngineTest","Flagsmith.DotnetClent.Test"]
+                working-directory: ["EngineTest","Flagsmith.DotnetClent.Test"]
         
         steps:
           - name: Cloning repo
