@@ -30,7 +30,7 @@ namespace Flagsmith
     {
         public static FlagsmithClient instance;
 
-        private readonly FlagsmithConfiguration configuration;
+        protected readonly FlagsmithConfiguration configuration;
         protected static HttpClient httpClient;
         protected EnvironmentModel Environment { get; set; }
         private readonly PollingManager _PollingManager;
@@ -74,101 +74,15 @@ namespace Flagsmith
         /// <summary>
         /// Get all the default for flags for the current environment.
         /// </summary>
-        public async Task<List<Flag>> GetFeatureFlags()
+        public async Task<Flags> GetFeatureFlags()
             => Environment != null ? GetFeatureFlagsFromDocuments() : await GetFeatureFlagsFromApi();
 
         /// <summary>
         /// Get all the flags for the current environment for a given identity.
         /// </summary>
 
-        public async Task<List<Flag>> GetFeatureFlags(string identity, List<Trait> traits = null)
+        public async Task<Flags> GetFeatureFlags(string identity, List<Trait> traits = null)
              => Environment != null ? GetIdentityFlagsFromDocuments(identity, traits) : await GetIdentityFlagsFromApi(identity);
-
-        /// <summary>
-        /// Check feature exists and is enabled optionally for a specific identity
-        /// </summary>
-        /// <returns>Null if Flagsmith is unaccessible</returns>
-        public async Task<bool?> HasFeatureFlag(string featureName, string identity = null, List<Trait> traits = null)
-        {
-            List<Flag> flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity, traits);
-            if (flags == null)
-            {
-                return null;
-            }
-
-            foreach (Flag flag in flags)
-            {
-                if (flag.GetFeature().GetName().Equals(featureName) && flag.IsEnabled())
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Get remote config value optionally for a specific identity.
-        /// </summary>
-        public async Task<string> GetFeatureValue(string featureName, string identity = null, List<Trait> traits = null)
-        {
-            List<Flag> flags = null;
-            try
-            {
-                flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity, traits);
-            }
-            catch (FlagsmithAPIError)
-            {
-                var val = await configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
-                if (val != null)
-                    return val;
-                throw;
-            }
-
-            if (flags != null)
-            {
-                foreach (Flag flag in flags)
-                {
-                    if (flag.GetFeature().GetName().Equals(featureName))
-                    {
-                        return await flag.GetValue();
-                    }
-                }
-            }
-            var value = await configuration.DefaultFlagHandler?.Invoke(featureName)?.GetValue();
-            return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
-        }
-        /// <summary>
-        /// Get feature flag optionally for a specific identity.
-        /// </summary>
-        public async Task<Flag> GetFeatureFlag(string featureName, string identity = null, List<Trait> traits = null)
-        {
-            List<Flag> flags = null;
-            try
-            {
-                flags = identity == null ? await GetFeatureFlags() : await GetFeatureFlags(identity, traits);
-            }
-            catch (FlagsmithAPIError)
-            {
-                var val = configuration.DefaultFlagHandler?.Invoke(featureName);
-                if (val != null)
-                    return val;
-                throw;
-            }
-
-            if (flags != null)
-            {
-                foreach (Flag flag in flags)
-                {
-                    if (flag.GetFeature().GetName().Equals(featureName))
-                    {
-                        return flag;
-                    }
-                }
-            }
-            var value = configuration.DefaultFlagHandler?.Invoke(featureName);
-            return value ?? throw new FlagsmithClientError("Feature does not exist: " + featureName);
-        }
 
         /// <summary>
         /// Get all user traits for provided identity. Optionally filter results with a list of keys
@@ -406,30 +320,44 @@ namespace Flagsmith
                 this.configuration.Logger?.LogError(ex.Message);
             }
         }
-        protected async virtual Task<List<Flag>> GetFeatureFlagsFromApi()
+        protected async virtual Task<Flags> GetFeatureFlagsFromApi()
         {
-            string url = configuration.ApiUrl.AppendPath("flags");
-            string json = await GetJSON(HttpMethod.Get, url);
-            var flags = JsonConvert.DeserializeObject<List<Flag>>(json);
-            return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
+            try
+            {
+                string url = configuration.ApiUrl.AppendPath("flags");
+                string json = await GetJSON(HttpMethod.Get, url);
+                var flags = JsonConvert.DeserializeObject<List<Flag>>(json);
+                return Flags.FromApiFlag(_AnalyticsProcessor, configuration.DefaultFlagHandler, flags);
+            }
+            catch (FlagsmithAPIError e)
+            {
+                return configuration.DefaultFlagHandler != null ? Flags.FromApiFlag(_AnalyticsProcessor, configuration.DefaultFlagHandler, null) : throw e;
+            }
+
         }
-        protected async virtual Task<List<Flag>> GetIdentityFlagsFromApi(string identity)
+        protected async virtual Task<Flags> GetIdentityFlagsFromApi(string identity)
         {
-            string url = GetIdentitiesUrl(identity);
-            string json = await GetJSON(HttpMethod.Get, url);
-            var flags = JsonConvert.DeserializeObject<Identity>(json)?.flags;
-            return new List<Flag>(AnalyticFlag.FromApiFlag(_AnalyticsProcessor, flags));
+            try
+            {
+                string url = GetIdentitiesUrl(identity);
+                string json = await GetJSON(HttpMethod.Get, url);
+                var flags = JsonConvert.DeserializeObject<Identity>(json)?.flags;
+                return Flags.FromApiFlag(_AnalyticsProcessor, configuration.DefaultFlagHandler, flags);
+            }
+            catch (FlagsmithAPIError e)
+            {
+                return configuration.DefaultFlagHandler != null ? Flags.FromApiFlag(_AnalyticsProcessor, configuration.DefaultFlagHandler, null) : throw e;
+            }
+
         }
-        protected virtual List<Flag> GetFeatureFlagsFromDocuments()
+        protected virtual Flags GetFeatureFlagsFromDocuments()
         {
-            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetEnvironmentFeatureStates(Environment));
-            return new List<Flag>(analyticFlag);
+            return Flags.FromFeatureStateModel(_AnalyticsProcessor, configuration.DefaultFlagHandler, _Engine.GetEnvironmentFeatureStates(Environment));
         }
-        protected virtual List<Flag> GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
+        protected virtual Flags GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
         {
             var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits?.Select(t => new TraitModel { TraitKey = t.GetKey(), TraitValue = t.GetIntValue() }).ToList() };
-            var analyticFlag = AnalyticFlag.FromFeatureStateModel(_AnalyticsProcessor, _Engine.GetIdentityFeatureStates(Environment, identity), identity.CompositeKey);
-            return new List<Flag>(analyticFlag);
+            return Flags.FromFeatureStateModel(_AnalyticsProcessor, configuration.DefaultFlagHandler, _Engine.GetIdentityFeatureStates(Environment, identity), identity.CompositeKey);
         }
         ~FlagsmithClient() => _PollingManager.StopPoll();
     }
