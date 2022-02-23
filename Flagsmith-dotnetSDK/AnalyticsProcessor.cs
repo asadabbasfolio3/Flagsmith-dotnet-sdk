@@ -38,7 +38,7 @@ namespace Flagsmith
         /// Post the features on the provided endpoint and clear the cached data.
         /// </summary>
         /// <returns></returns>
-        public virtual async Task Flush()
+        public async Task Flush()
         {
             if (AnalyticsData?.Any() == false)
                 return;
@@ -83,5 +83,6 @@ namespace Flagsmith
             if ((DateTime.Now - _LastFlushed).Seconds > _FlushIntervalSeconds)
                 await Flush();
         }
+
     }
 }
