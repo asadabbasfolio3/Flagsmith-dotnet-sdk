@@ -9,12 +9,12 @@ app.MapPost("/", async (FlagsmithClient flagsmithClient, Example.Model.search se
  {
      var traitList = new List<Trait> { new Trait(search.TraitKey, search.TraitValue) };
      var flags = await flagsmithClient.GetFeatureFlags(search.Identifier, traitList);
-     var flag = await flags.GetFeatureFlag("is_light");
+     var flag = await flags.GetFlag("is_light");
      return new
      {
-         name = flag.GetFeature().GetName(),
-         isEnabled = flag.IsEnabled(),
-         value = flag.GetValue()
+         name = flag.Name,
+         isEnabled = flag.Enabled,
+         value = flag.Value
      };
  });
 

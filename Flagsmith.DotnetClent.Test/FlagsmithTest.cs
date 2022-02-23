@@ -42,9 +42,9 @@ namespace Flagsmith.DotnetClient.Test
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object);
             var flags = (await flagsmithClientTest.GetFeatureFlags()).AllFlags();
             mockHttpClient.Verify(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Once);
-            Assert.True(flags[0].IsEnabled());
-            Assert.Equal("some-value", flags[0].GetValue());
-            Assert.Equal("some_feature", flags[0].GetFeature().GetName());
+            Assert.True(flags[0].Enabled);
+            Assert.Equal("some-value", flags[0].Value);
+            Assert.Equal("some_feature", flags[0].Name);
         }
         [Fact]
         public async Task TestGetEnvironmentFlagsUsesLocalEnvironmentWhenAvailable()
@@ -58,9 +58,9 @@ namespace Flagsmith.DotnetClient.Test
             mockHttpClient.Verify(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Once);
             var flags = (await flagsmithClientTest.GetFeatureFlags()).AllFlags();
             var fs = Fixtures.Environment.FeatureStates[0];
-            Assert.Equal(fs.Enabled, flags[0].IsEnabled());
-            Assert.Equal(fs.GetValue(), flags[0].GetValue());
-            Assert.Equal(fs.Feature.Name, flags[0].GetFeature().GetName());
+            Assert.Equal(fs.Enabled, flags[0].Enabled);
+            Assert.Equal(fs.GetValue(), flags[0].Value);
+            Assert.Equal(fs.Feature.Name, flags[0].Name);
         }
         [Fact]
         public async Task TestGetIdentityFlagsCallsApiWhenNoLocalEnvironmentNoTraits()
@@ -72,9 +72,9 @@ namespace Flagsmith.DotnetClient.Test
             });
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object);
             var flags = (await flagsmithClientTest.GetFeatureFlags("identifier")).AllFlags();
-            Assert.True(flags[0].IsEnabled());
-            Assert.Equal("some-value", flags[0].GetValue());
-            Assert.Equal("some_feature", flags[0].GetFeature().GetName());
+            Assert.True(flags[0].Enabled);
+            Assert.Equal("some-value", flags[0].Value);
+            Assert.Equal("some_feature", flags[0].Name);
         }
         [Fact]
         public async Task TestGetIdentityFlagsUsesLocalEnvironmentWhenAvailable()
@@ -116,9 +116,9 @@ namespace Flagsmith.DotnetClient.Test
             });
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object, defaultFlagHandler: (string name) => defaultFlag);
             var flags = await flagsmithClientTest.GetFeatureFlags();
-            var flag = await flags.GetFeatureFlag("some_feature");
-            Assert.True(flag.IsEnabled());
-            Assert.Equal("some-default-value", flag.GetValue());
+            var flag = await flags.GetFlag("some_feature");
+            Assert.True(flag.Enabled);
+            Assert.Equal("some-default-value", flag.Value);
         }
         [Fact]
         public async Task TestDefaultFlagIsNotUsedWhenEnvironmentFlagsReturned()
@@ -131,9 +131,9 @@ namespace Flagsmith.DotnetClient.Test
             });
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object, defaultFlagHandler: (string name) => defaultFlag);
             var flags = await flagsmithClientTest.GetFeatureFlags();
-            var flag = await flags.GetFeatureFlag("some_feature");
-            Assert.True(flag.IsEnabled());
-            Assert.NotEqual("some-default-value", flag.GetValue());
+            var flag = await flags.GetFlag("some_feature");
+            Assert.True(flag.Enabled);
+            Assert.NotEqual("some-default-value", flag.Value);
         }
         [Fact]
         public async Task TestDefaultFlagIsUsedWhenNoIdentityFlagsReturned()
@@ -146,9 +146,9 @@ namespace Flagsmith.DotnetClient.Test
             });
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object, defaultFlagHandler: (string name) => defaultFlag);
             var flags = await flagsmithClientTest.GetFeatureFlags("identifier");
-            var flag = await flags.GetFeatureFlag("some_feature");
-            Assert.True(flag.IsEnabled());
-            Assert.Equal("some-default-value", flag.GetValue());
+            var flag = await flags.GetFlag("some_feature");
+            Assert.True(flag.Enabled);
+            Assert.Equal("some-default-value", flag.Value);
         }
         [Fact]
         public async Task TestDefaultFlagIsNotUsedWhenIdentityFlagsReturned()
@@ -161,9 +161,9 @@ namespace Flagsmith.DotnetClient.Test
             });
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object, defaultFlagHandler: (string name) => defaultFlag);
             var flags = await flagsmithClientTest.GetFeatureFlags("identifier");
-            var flag = await flags.GetFeatureFlag("some_feature");
-            Assert.True(flag.IsEnabled());
-            Assert.NotEqual("some-default-value", flag.GetValue());
+            var flag = await flags.GetFlag("some_feature");
+            Assert.True(flag.Enabled);
+            Assert.NotEqual("some-default-value", flag.Value);
         }
         [Fact]
         public async Task TestDefaultFlagsAreUsedIfApiErrorAndDefaultFlagHandlerGiven()
@@ -175,9 +175,9 @@ namespace Flagsmith.DotnetClient.Test
             });
             var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object, defaultFlagHandler: (string name) => defaultFlag);
             var flags = await flagsmithClientTest.GetFeatureFlags();
-            var flag = await flags.GetFeatureFlag("some_feature");
-            Assert.True(flag.IsEnabled());
-            Assert.Equal("some-default-value", flag.GetValue());
+            var flag = await flags.GetFlag("some_feature");
+            Assert.True(flag.Enabled);
+            Assert.Equal("some-default-value", flag.Value);
         }
 
     }
