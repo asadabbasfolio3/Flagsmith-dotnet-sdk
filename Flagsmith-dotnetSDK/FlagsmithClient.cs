@@ -289,7 +289,7 @@ namespace Flagsmith
             }
         }
 
-        protected async Task<string> GetJSON(HttpMethod method, string url, string body = null)
+        private async Task<string> GetJSON(HttpMethod method, string url, string body = null)
         {
             try
             {
