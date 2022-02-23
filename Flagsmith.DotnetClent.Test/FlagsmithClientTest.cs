@@ -1,15 +1,12 @@
 ﻿using FlagsmithEngine.Environment.Models;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using System.Net.Http;
 using System.Threading;
 using Newtonsoft.Json;
-using FlagsmithEngine.Trait.Models;
-using System.Linq;
-using Moq;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace Flagsmith.DotnetClient.Test
 {
@@ -17,7 +14,17 @@ namespace Flagsmith.DotnetClient.Test
     {
         Dictionary<string, int> totalFucntionCalls;
 
-        public FlagsmithClientTest(FlagsmithConfiguration flagsmithConfiguration) : base(flagsmithConfiguration)
+        public FlagsmithClientTest(string environmentKey,
+            string apiUrl = "",
+            ILogger logger = null,
+            Func<string, Flag> defaultFlagHandler = null,
+            bool enableAnalytics = false,
+            bool enableClientSideEvaluation = false,
+            int environmentRefreshIntervalSeconds = 60,
+            bool useLegacyIdentities = true,
+            Dictionary<string, string> customHeaders = null,
+            int retries = 3,
+            double? requestTimeout = null) : base(environmentKey, apiUrl, logger, defaultFlagHandler, enableAnalytics, enableClientSideEvaluation, environmentRefreshIntervalSeconds, useLegacyIdentities, customHeaders, retries, requestTimeout)
         {
             _initDict();
         }
@@ -44,8 +51,7 @@ namespace Flagsmith.DotnetClient.Test
         {
             var identityResponse = JsonConvert.DeserializeObject<Identity>(await GetJSON(HttpMethod.Get, Fixtures.ApiUrl));
             totalFucntionCalls[nameof(GetIdentityFlagsFromApi)] = totalFucntionCalls.TryGetValue(nameof(GetIdentityFlagsFromApi), out int i) ? i + 1 : 1;
-            return Flags.FromApiFlag(null, configuration.DefaultFlagHandler, identityResponse.flags);
-
+            return Flags.FromApiFlag(null, DefaultFlagHandler, identityResponse.flags);
         }
         protected override Flags GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
         {
