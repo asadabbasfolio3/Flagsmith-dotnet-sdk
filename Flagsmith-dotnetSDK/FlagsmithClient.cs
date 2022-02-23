@@ -41,7 +41,7 @@ namespace Flagsmith
         protected int? Retries { get; set; }
         protected Dictionary<string, string> CustomHeaders { get; set; }
         const string _defaultApiUrl = "https://api.flagsmith.com/api/v1/";
-        protected static HttpClient httpClient;
+        protected HttpClient httpClient;
         protected EnvironmentModel Environment { get; set; }
         private readonly PollingManager _PollingManager;
         private readonly IEngine _Engine;
@@ -71,7 +71,8 @@ namespace Flagsmith
             bool useLegacyIdentities = true,
             Dictionary<string, string> customHeaders = null,
             int retries = 3,
-            double? requestTimeout = null)
+            double? requestTimeout = null,
+            HttpClient httpClient = null)
         {
             this.EnvironmentKey = environmentKey;
             this.ApiUrl = apiUrl;
@@ -84,7 +85,7 @@ namespace Flagsmith
             this.CustomHeaders = customHeaders;
             this.Retries = retries;
             this.RequestTimeout = requestTimeout;
-            httpClient = new HttpClient();
+            this.httpClient = httpClient ?? new HttpClient();
             _Engine = new Engine();
             if (EnableAnalytics)
                 _AnalyticsProcessor = new AnalyticsProcessor(httpClient, EnvironmentKey, ApiUrl, Logger, CustomHeaders);
@@ -288,7 +289,7 @@ namespace Flagsmith
             }
         }
 
-        protected virtual async Task<string> GetJSON(HttpMethod method, string url, string body = null)
+        protected async Task<string> GetJSON(HttpMethod method, string url, string body = null)
         {
             try
             {
@@ -332,7 +333,7 @@ namespace Flagsmith
 
             return ApiUrl.AppendToUrl(trailingSlash: false, "identities", $"?identifier={identity}");
         }
-        protected async virtual Task GetAndUpdateEnvironmentFromApi()
+        protected async Task GetAndUpdateEnvironmentFromApi()
         {
             try
             {
@@ -345,7 +346,7 @@ namespace Flagsmith
                 Logger?.LogError(ex.Message);
             }
         }
-        protected async virtual Task<Flags> GetFeatureFlagsFromApi()
+        protected async Task<Flags> GetFeatureFlagsFromApi()
         {
             try
             {
@@ -360,7 +361,7 @@ namespace Flagsmith
             }
 
         }
-        protected async virtual Task<Flags> GetIdentityFlagsFromApi(string identity)
+        protected async Task<Flags> GetIdentityFlagsFromApi(string identity)
         {
             try
             {
@@ -375,11 +376,11 @@ namespace Flagsmith
             }
 
         }
-        protected virtual Flags GetFeatureFlagsFromDocuments()
+        protected Flags GetFeatureFlagsFromDocuments()
         {
             return Flags.FromFeatureStateModel(_AnalyticsProcessor, DefaultFlagHandler, _Engine.GetEnvironmentFeatureStates(Environment));
         }
-        protected virtual Flags GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
+        protected Flags GetIdentityFlagsFromDocuments(string identifier, List<Trait> traits)
         {
             var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits?.Select(t => new TraitModel { TraitKey = t.GetKey(), TraitValue = t.GetIntValue() }).ToList() };
             return Flags.FromFeatureStateModel(_AnalyticsProcessor, DefaultFlagHandler, _Engine.GetIdentityFeatureStates(Environment, identity), identity.CompositeKey);
