@@ -31,7 +31,6 @@ namespace Flagsmith
     {
         private string ApiUrl { get; set; }
         private string EnvironmentKey { get; set; }
-        private bool UseLegacyIdentities { get; set; }
         private bool EnableClientSideEvaluation { get; set; }
         private int EnvironmentRefreshIntervalSeconds { get; set; }
         private Func<string, Flag> DefaultFlagHandler { get; set; }
@@ -68,7 +67,6 @@ namespace Flagsmith
             bool enableAnalytics = false,
             bool enableClientSideEvaluation = false,
             int environmentRefreshIntervalSeconds = 60,
-            bool useLegacyIdentities = true,
             Dictionary<string, string> customHeaders = null,
             int retries = 3,
             double? requestTimeout = null,
@@ -81,7 +79,6 @@ namespace Flagsmith
             this.EnableAnalytics = enableAnalytics;
             this.EnableClientSideEvaluation = enableClientSideEvaluation;
             this.EnvironmentRefreshIntervalSeconds = environmentRefreshIntervalSeconds;
-            this.UseLegacyIdentities = useLegacyIdentities;
             this.CustomHeaders = customHeaders;
             this.Retries = retries;
             this.RequestTimeout = requestTimeout;
@@ -109,185 +106,6 @@ namespace Flagsmith
 
         public async Task<Flags> GetFeatureFlags(string identity, List<Trait> traits = null)
              => Environment != null ? GetIdentityFlagsFromDocuments(identity, traits) : await GetIdentityFlagsFromApi(identity);
-
-        /// <summary>
-        /// Get all user traits for provided identity. Optionally filter results with a list of keys
-        /// </summary>
-        public async Task<List<Trait>> GetTraits(string identity, List<string> keys = null)
-        {
-            try
-            {
-                string url = GetIdentitiesUrl(identity);
-                string json = await GetJSON(HttpMethod.Get, url);
-
-                List<Trait> traits = JsonConvert.DeserializeObject<Identity>(json)?.traits;
-                if (traits == null)
-                {
-                    return null;
-                }
-                if (keys == null)
-                {
-                    return traits;
-                }
-
-                List<Trait> filteredTraits = new List<Trait>();
-                foreach (Trait trait in traits)
-                {
-                    if (keys.Contains(trait.GetKey()))
-                    {
-                        filteredTraits.Add(trait);
-                    }
-                }
-
-                return filteredTraits;
-            }
-            catch (JsonException e)
-            {
-                Console.WriteLine("\nJSON Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Get user trait for provided identity and trait key.
-        /// </summary>
-        public async Task<string> GetTrait(string identity, string key)
-        {
-            List<Trait> traits = await GetTraits(identity);
-            if (traits == null)
-            {
-                return null;
-            }
-
-            foreach (Trait trait in traits)
-            {
-                if (trait.GetKey().Equals(key))
-                {
-                    return trait.GetStringValue();
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get boolean user trait for provided identity and trait key.
-        /// </summary>
-        /// <returns>Null if Flagsmith is unaccessible</returns>
-        public async Task<bool?> GetBoolTrait(string identity, string key)
-        {
-            List<Trait> traits = await GetTraits(identity);
-            if (traits == null)
-            {
-                return null;
-            }
-
-            foreach (Trait trait in traits)
-            {
-                if (trait.GetKey().Equals(key))
-                {
-                    return trait.GetBoolValue();
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Get integer user trait for provided identity and trait key.
-        /// </summary>
-        /// <returns>Null if Flagsmith is unaccessible</returns>
-        public async Task<int?> GetIntegerTrait(string identity, string key)
-        {
-            List<Trait> traits = await GetTraits(identity);
-            if (traits == null)
-            {
-                return null;
-            }
-
-            foreach (Trait trait in traits)
-            {
-                if (trait.GetKey().Equals(key))
-                {
-                    return trait.GetIntValue();
-                }
-            }
-
-            return 0;
-        }
-
-        /// <summary>
-        /// Set user trait value for provided identity and trait key.
-        /// </summary>
-        public async Task<Trait> SetTrait(string identity, string key, object value)
-        {
-            try
-            {
-                if (!(value is bool) && !(value is int) && !(value is string))
-                {
-                    throw new ArgumentException("Value parameter must be string, int or boolean");
-                }
-
-                string url = ApiUrl.AppendPath("traits");
-                string json = await GetJSON(HttpMethod.Post, url, JsonConvert.SerializeObject(new { identity = new { identifier = identity }, trait_key = key, trait_value = value }));
-
-                return JsonConvert.DeserializeObject<Trait>(json);
-            }
-            catch (JsonException e)
-            {
-                Console.WriteLine("\nJSON Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine("\nArgument Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Increment user trait value for provided identity and trait key.
-        /// </summary>
-        public async Task<Trait> IncrementTrait(string identity, string key, int incrementBy)
-        {
-            try
-            {
-                string url = ApiUrl.AppendPath("traits", "increment-value");
-                string json = await GetJSON(HttpMethod.Post, url,
-                    JsonConvert.SerializeObject(new { identifier = identity, trait_key = key, increment_by = incrementBy }));
-
-                return JsonConvert.DeserializeObject<Trait>(json);
-            }
-            catch (JsonException e)
-            {
-                Console.WriteLine("\nJSON Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Get both feature flags and user traits for the provided identity
-        /// </summary>
-        public async Task<Identity> GetUserIdentity(string identity)
-        {
-            try
-            {
-                string url = GetIdentitiesUrl(identity);
-                string json = await GetJSON(HttpMethod.Get, url);
-
-                return JsonConvert.DeserializeObject<Identity>(json);
-            }
-            catch (JsonException e)
-            {
-                Console.WriteLine("\nJSON Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
-                return null;
-            }
-        }
 
         private async Task<string> GetJSON(HttpMethod method, string url, string body = null)
         {
@@ -323,15 +141,9 @@ namespace Flagsmith
                 throw new FlagsmithAPIError("Request cancelled: Api server takes too long to respond");
             }
         }
-
         private string GetIdentitiesUrl(string identity)
         {
-            if (UseLegacyIdentities)
-            {
-                return ApiUrl.AppendPath("identities", identity);
-            }
-
-            return ApiUrl.AppendToUrl(trailingSlash: false, "identities", $"?identifier={identity}");
+            return ApiUrl.AppendPath("identities", identity);
         }
         private async Task GetAndUpdateEnvironmentFromApi()
         {

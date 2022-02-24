@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Threading;
 using Xunit;
+using Moq.Protected;
+
 namespace Flagsmith.DotnetClient.Test
 {
     public class FlagsmithTest
@@ -10,13 +12,17 @@ namespace Flagsmith.DotnetClient.Test
         [Fact]
         public void TestFlagsmithStartsPollingManagerOnInitIfEnabled()
         {
-            var mockHttpClient = HttpMocker.MockHttpResponse(new HttpResponseMessage
+            var handlerMock = HttpMocker.MockHttpMessageHandler(new HttpResponseMessage
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Content = new StringContent(Fixtures.JsonObject.ToString())
             });
-            var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object, enableClientSideEvaluation: true);
-            mockHttpClient.Verify(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+            var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: new HttpClient(handlerMock.Object), enableClientSideEvaluation: true);
+            handlerMock.Protected().Verify(
+             "SendAsync",
+             Times.Exactly(1),
+             ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get && req.RequestUri.AbsolutePath == "/api/v1/environment-document/"),
+             ItExpr.IsAny<CancellationToken>());
         }
         [Fact]
         public async void TestUpdateEnvironmentSetsEnvironment()
@@ -34,14 +40,19 @@ namespace Flagsmith.DotnetClient.Test
         [Fact]
         public async Task TestGetEnvironmentFlagsCallsApiWhenNoLocalEnvironment()
         {
-            var mockHttpClient = HttpMocker.MockHttpResponse(new HttpResponseMessage
+            var handlerMock = HttpMocker.MockHttpMessageHandler(new HttpResponseMessage
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Content = new StringContent(Fixtures.ApiFlagResponse)
             });
-            var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object);
+            var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: new HttpClient(handlerMock.Object));
             var flags = (await flagsmithClientTest.GetFeatureFlags()).AllFlags();
-            mockHttpClient.Verify(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+            handlerMock.Protected().Verify(
+                   "SendAsync",
+                   Times.Exactly(1),
+                   ItExpr.Is<HttpRequestMessage>(req => (req.Method == HttpMethod.Get && req.RequestUri.AbsolutePath.StartsWith("/api/v1/flags/"))),
+                   ItExpr.IsAny<CancellationToken>()
+            );
             Assert.True(flags[0].Enabled);
             Assert.Equal("some-value", flags[0].Value);
             Assert.Equal("some_feature", flags[0].Name);
@@ -65,13 +76,19 @@ namespace Flagsmith.DotnetClient.Test
         [Fact]
         public async Task TestGetIdentityFlagsCallsApiWhenNoLocalEnvironmentNoTraits()
         {
-            var mockHttpClient = HttpMocker.MockHttpResponse(new HttpResponseMessage
+            var handlerMock = HttpMocker.MockHttpMessageHandler(new HttpResponseMessage
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Content = new StringContent(Fixtures.ApiIdentityResponse)
             });
-            var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: mockHttpClient.Object);
+            var flagsmithClientTest = new FlagsmithClient(Fixtures.ApiKey, httpClient: new HttpClient(handlerMock.Object));
             var flags = (await flagsmithClientTest.GetFeatureFlags("identifier")).AllFlags();
+            handlerMock.Protected().Verify(
+                   "SendAsync",
+                   Times.Exactly(1),
+                   ItExpr.Is<HttpRequestMessage>(req => (req.Method == HttpMethod.Get && req.RequestUri.AbsolutePath.StartsWith("/api/v1/identities"))),
+                   ItExpr.IsAny<CancellationToken>()
+            );
             Assert.True(flags[0].Enabled);
             Assert.Equal("some-value", flags[0].Value);
             Assert.Equal("some_feature", flags[0].Name);
