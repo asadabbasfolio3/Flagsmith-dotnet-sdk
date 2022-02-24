@@ -1,12 +1,8 @@
 using Newtonsoft.Json;
-using FlagsmithEngine.Feature.Models;
-using FlagsmithEngine.Identity.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using System.Reflection;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Flagsmith
 {
@@ -42,6 +38,9 @@ namespace Flagsmith
             return JsonConvert.SerializeObject(this);
         }
     }
+    /// <summary>
+    /// For derserializing flag response from api to plain flag object.
+    /// </summary>
     internal class FlagJsonConverter : JsonConverter
     {
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -74,7 +73,7 @@ namespace Flagsmith
         }
 
         public override bool CanWrite
-        {
+        { 
             get { return false; }
         }
 

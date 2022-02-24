@@ -1,7 +1,6 @@
 ﻿using Moq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Threading;
 using Xunit;
 namespace Flagsmith.DotnetClient.Test
 {
@@ -30,6 +29,7 @@ namespace Flagsmith.DotnetClient.Test
             mockHttpClient.verifyHttpRequest(HttpMethod.Get, "/api/v1/environment-document/", Times.Once);
             await flagsmithClientTest.GetEnvironmentFlags();
             mockHttpClient.verifyHttpRequest(HttpMethod.Get, "/api/v1/environment-document/", Times.Once);
+            mockHttpClient.verifyHttpRequest(HttpMethod.Get, "/api/v1/flags/", Times.Never);
         }
         [Fact]
         public async Task TestGetEnvironmentFlagsCallsApiWhenNoLocalEnvironment()
