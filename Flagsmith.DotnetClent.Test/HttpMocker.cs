@@ -1,5 +1,4 @@
 ﻿using Moq;
-using Moq.Protected;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,18 +22,6 @@ namespace Flagsmith.DotnetClient.Test
                 }));
             return httpClientMock;
         }
-        public static Mock<HttpMessageHandler> MockHttpMessageHandler(HttpResponseMessage httpResponseMessage)
-        {
-            var handlerMock = new Mock<HttpMessageHandler>();
-            handlerMock
-               .Protected()
-               .Setup<Task<HttpResponseMessage>>(
-                  "SendAsync",
-                  ItExpr.IsAny<HttpRequestMessage>(),
-                  ItExpr.IsAny<CancellationToken>())
-               .ReturnsAsync(httpResponseMessage);
-            return handlerMock;
-        }
         public static Mock<HttpClient> MockHttpThrowConnectionError()
         {
             var httpClientMock = new Mock<HttpClient>();
@@ -42,6 +29,13 @@ namespace Flagsmith.DotnetClient.Test
                 .ThrowsAsync(new HttpRequestException());
             return httpClientMock;
         }
+
+
+        public static void verifyHttpRequest(this Mock<HttpClient> mockHttpClient, HttpMethod httpMethod, string url, System.Func<Moq.Times> times)
+        {
+            mockHttpClient.Verify(x => x.SendAsync(It.Is<HttpRequestMessage>(req =>
+          req.Method == httpMethod &&
+          req.RequestUri.AbsolutePath == url), It.IsAny<CancellationToken>()), times);
+        }
     }
-    
 }

@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text;
-using Newtonsoft.Json;
-using FlagsmithEngine.Environment.Models;
+﻿using Flagsmith.Extensions;
 using FlagsmithEngine;
-using FlagsmithEngine.Interfaces;
+using FlagsmithEngine.Environment.Models;
 using FlagsmithEngine.Identity.Models;
+using FlagsmithEngine.Interfaces;
 using FlagsmithEngine.Trait.Models;
 using Microsoft.Extensions.Logging;
-using System.Threading;
-using Flagsmith.Extensions;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Flagsmith
 {   /// <summary>
@@ -27,7 +26,6 @@ namespace Flagsmith
     /// A general exception with a error message. Example: Feature not found, etc.
     /// </exception>
     public class FlagsmithClient
-
     {
         private string ApiUrl { get; set; }
         private string EnvironmentKey { get; set; }
@@ -68,7 +66,7 @@ namespace Flagsmith
             bool enableClientSideEvaluation = false,
             int environmentRefreshIntervalSeconds = 60,
             Dictionary<string, string> customHeaders = null,
-            int retries = 3,
+            int retries = 1,
             double? requestTimeout = null,
             HttpClient httpClient = null)
         {
@@ -97,14 +95,14 @@ namespace Flagsmith
         /// <summary>
         /// Get all the default for flags for the current environment.
         /// </summary>
-        public async Task<Flags> GetFeatureFlags()
+        public async Task<Flags> GetEnvironmentFlags()
             => Environment != null ? GetFeatureFlagsFromDocuments() : await GetFeatureFlagsFromApi();
 
         /// <summary>
         /// Get all the flags for the current environment for a given identity.
         /// </summary>
 
-        public async Task<Flags> GetFeatureFlags(string identity, List<Trait> traits = null)
+        public async Task<Flags> GetIdentityFlags(string identity, List<Trait> traits = null)
              => Environment != null ? GetIdentityFlagsFromDocuments(identity, traits) : await GetIdentityFlagsFromApi(identity);
 
         private async Task<string> GetJSON(HttpMethod method, string url, string body = null)
@@ -132,8 +130,8 @@ namespace Flagsmith
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine("\nHTTP Request Exception Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
+                Logger?.LogError("\nHTTP Request Exception Caught!");
+                Logger?.LogError("Message :{0} ", e.Message);
                 throw new FlagsmithAPIError("Unable to get valid response from Flagsmith API");
             }
             catch (TaskCanceledException)
@@ -141,6 +139,7 @@ namespace Flagsmith
                 throw new FlagsmithAPIError("Request cancelled: Api server takes too long to respond");
             }
         }
+
         private string GetIdentitiesUrl(string identity)
         {
             return ApiUrl.AppendPath("identities", identity);
@@ -197,7 +196,6 @@ namespace Flagsmith
             var identity = new IdentityModel { Identifier = identifier, IdentityTraits = traits?.Select(t => new TraitModel { TraitKey = t.GetKey(), TraitValue = t.GetIntValue() }).ToList() };
             return Flags.FromFeatureStateModel(_AnalyticsProcessor, DefaultFlagHandler, _Engine.GetIdentityFeatureStates(Environment, identity), identity.CompositeKey);
         }
-        ~FlagsmithClient() => _PollingManager.StopPoll();
+        ~FlagsmithClient() => _PollingManager?.StopPoll();
     }
-
 }

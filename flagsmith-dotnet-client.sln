@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flagsmith.Engine.Test", "En
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flagsmith.DotnetClient.Test", "Flagsmith.DotnetClent.Test\Flagsmith.DotnetClient.Test.csproj", "{89CC67B8-733B-4EE6-9FDA-CF67DA6BF0F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{F9D0C7C7-4D48-4474-BE34-F331AD6828B4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,10 +35,6 @@ Global
 		{89CC67B8-733B-4EE6-9FDA-CF67DA6BF0F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89CC67B8-733B-4EE6-9FDA-CF67DA6BF0F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89CC67B8-733B-4EE6-9FDA-CF67DA6BF0F5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9D0C7C7-4D48-4474-BE34-F331AD6828B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9D0C7C7-4D48-4474-BE34-F331AD6828B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9D0C7C7-4D48-4474-BE34-F331AD6828B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9D0C7C7-4D48-4474-BE34-F331AD6828B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
