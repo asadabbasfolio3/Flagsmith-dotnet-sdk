@@ -44,7 +44,7 @@ namespace Flagsmith.DotnetClient.Test
             mockHttpClient.verifyHttpRequest(HttpMethod.Get, "/api/v1/flags/", Times.Once);
             Assert.True(flags[0].Enabled);
             Assert.Equal("some-value", flags[0].Value);
-            Assert.Equal("some_feature", flags[0].Name);
+            Assert.Equal("some_feature", flags[0].Feature.Name);
         }
         [Fact]
         public async Task TestGetEnvironmentFlagsUsesLocalEnvironmentWhenAvailable()
@@ -60,7 +60,7 @@ namespace Flagsmith.DotnetClient.Test
             var fs = Fixtures.Environment.FeatureStates[0];
             Assert.Equal(fs.Enabled, flags[0].Enabled);
             Assert.Equal(fs.GetValue(), flags[0].Value);
-            Assert.Equal(fs.Feature.Name, flags[0].Name);
+            Assert.Equal(fs.Feature.Name, flags[0].Feature.Name);
             mockHttpClient.verifyHttpRequest(HttpMethod.Get, "/api/v1/environment-document/", Times.Once);
         }
         [Fact]
@@ -75,7 +75,7 @@ namespace Flagsmith.DotnetClient.Test
             var flags = (await flagsmithClientTest.GetIdentityFlags("identifier")).AllFlags();
             Assert.True(flags[0].Enabled);
             Assert.Equal("some-value", flags[0].Value);
-            Assert.Equal("some_feature", flags[0].Name);
+            Assert.Equal("some_feature", flags[0].Feature.Name);
             mockHttpClient.verifyHttpRequest(HttpMethod.Get, "/api/v1/identities/identifier/", Times.Once);
 
         }
