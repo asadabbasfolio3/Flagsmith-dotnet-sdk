@@ -47,13 +47,13 @@ namespace Flagsmith
         {
             JObject jo = JObject.Load(reader);
             object targetObj = Activator.CreateInstance(objectType);//create instance of the type which use this attribute i.e  [JsonConverter(typeof(FlagJsonConverter))]
-            foreach (PropertyInfo prop in objectType.GetProperties().Where(p => p.CanRead && p.CanWrite)) //using refeection retrieve all the properties from the type.
+            foreach (PropertyInfo prop in objectType.GetProperties().Where(p => p.CanRead && p.CanWrite)) //using reflection retrieve all the properties from the type.
             {
                 JsonPropertyAttribute att = prop.GetCustomAttributes(true)// from each property retrieve json property attribute i.e  [JsonProperty("id")]
                                                 .OfType<JsonPropertyAttribute>()
                                                 .FirstOrDefault();
 
-                string jsonPath = (att != null ? att.PropertyName : prop.Name);//if there is json proprty attrbitue defined then the relative value used otherwise the original property name will be used.
+                string jsonPath = (att != null ? att.PropertyName : prop.Name); //if there is json property attribute defined then the relative value used otherwise the original property name will be used.
                 JToken token = jo.SelectToken(jsonPath); //SelectToken is a method on JToken and takes a string path to a child token. i.e feature.name
                 // convert the token to object and set the proprty.
                 if (token != null && token.Type != JTokenType.Null)
